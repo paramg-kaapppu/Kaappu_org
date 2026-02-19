@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Shield, Lock, Eye, Zap } from 'lucide-react'
+import { ArrowRight, Shield, Lock } from 'lucide-react'
+import ControlLoopAnimation from './ControlLoopAnimation'
 
 const stats = [
     { value: '99.9%', label: 'Threat Detection' },
@@ -14,7 +15,7 @@ export default function Hero() {
         <section className="relative min-h-screen flex items-center pt-20">
             {/* Hero Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div className="flex flex-col gap-12 items-center">
                     {/* Text Content */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -76,71 +77,14 @@ export default function Hero() {
                         </div>
                     </motion.div>
 
-                    {/* Visual Element */}
+                    {/* Control Loop Animation */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.3 }}
-                        className="relative hidden lg:block"
+                        className="w-full max-w-5xl mx-auto"
                     >
-                        {/* Animated Security Visualization */}
-                        <div className="relative w-full aspect-square max-w-lg mx-auto">
-                            {/* Central Shield */}
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                    className="w-80 h-80 rounded-full border border-kaappu-500/20"
-                                />
-                                <motion.div
-                                    animate={{ rotate: -360 }}
-                                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                    className="absolute w-64 h-64 rounded-full border border-cyber-purple/20"
-                                />
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                                    className="absolute w-96 h-96 rounded-full border border-cyber-cyan/10"
-                                />
-                            </div>
-
-                            {/* Central Icon */}
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <motion.div
-                                    animate={{ scale: [1, 1.1, 1] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                    className="relative"
-                                >
-                                    <div className="w-32 h-32 rounded-2xl glass-card flex items-center justify-center glow-effect">
-                                        <Shield className="w-16 h-16 text-kaappu-400" />
-                                    </div>
-                                </motion.div>
-                            </div>
-
-                            {/* Floating Elements */}
-                            {[
-                                { Icon: Eye, delay: 0, position: 'top-8 left-8' },
-                                { Icon: Lock, delay: 0.5, position: 'top-12 right-12' },
-                                { Icon: Zap, delay: 1, position: 'bottom-12 left-12' },
-                                { Icon: Shield, delay: 1.5, position: 'bottom-8 right-8' },
-                            ].map(({ Icon, delay, position }, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    initial={{ opacity: 0, scale: 0 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.5 + delay, duration: 0.5 }}
-                                    className={`absolute ${position}`}
-                                >
-                                    <motion.div
-                                        animate={{ y: [0, -10, 0] }}
-                                        transition={{ duration: 3, repeat: Infinity, delay }}
-                                        className="w-12 h-12 rounded-xl glass flex items-center justify-center"
-                                    >
-                                        <Icon className="w-6 h-6 text-cyber-cyan" />
-                                    </motion.div>
-                                </motion.div>
-                            ))}
-                        </div>
+                        <ControlLoopAnimation />
                     </motion.div>
                 </div>
 

@@ -108,9 +108,9 @@ export default function Footer() {
                 {/* Contact Info */}
                 <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-slate-400">
-                        <a href="mailto:contact@kaappu.org" className="flex items-center gap-2 hover:text-kaappu-400 transition-colors">
+                        <a href="mailto:paramg@kaappu.org" className="flex items-center gap-2 hover:text-kaappu-400 transition-colors">
                             <Mail className="w-4 h-4" />
-                            contact@kaappu.org
+                            Contact Us
                         </a>
                         <span className="flex items-center gap-2">
                             <MapPin className="w-4 h-4" />
