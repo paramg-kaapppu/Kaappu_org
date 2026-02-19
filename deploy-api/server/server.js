@@ -23,7 +23,8 @@ app.use(cors({
         'http://localhost:5174',
         'http://localhost:5175',
         'https://kaappu.org',
-        'https://www.kaappu.org'
+        'https://www.kaappu.org',
+        'https://black-dune-06b0e080f.6.azurestaticapps.net'
     ],
     methods: ['GET', 'POST'],
     credentials: true
