@@ -146,165 +146,166 @@ const solutions = [
         id: 'ai-protection',
         icon: Bot,
         title: 'AI Protection',
-        subtitle: 'Secure AI Agent Access',
-        description: 'As AI agents become integral to business operations, protecting their identities and access becomes critical. Kaappu provides specialized security controls for AI systems and applications.',
+        subtitle: 'Kappuu Gateway Framework (KGF)',
+        description: 'A policy-driven AI execution control plane that sits between AI clients and execution systems (LLMs, MCP tools). KGF ensures that every model invocation, tool call, and reasoning step is identity-aware, policy-validated, auditable, and cost-governed—no AI operation occurs outside the gateway.',
         mainScreenshot: '/screenshots/threat-detection.png',
         features: [
             {
                 icon: Lock,
-                title: 'AI Agent Authentication',
-                description: 'Robust authentication mechanisms for AI agents and automated systems.'
+                title: 'Model Registry & Policy Enforcement',
+                description: 'Centralized registry of all LLMs with identity-based access control via OpenFGA. Every model invocation is authorized, token-governed, and audit-logged before execution.'
             },
             {
                 icon: Settings,
-                title: 'Access Controls for AI',
-                description: 'Fine-grained access policies specifically designed for AI system requirements.'
+                title: 'MCP Tool Discovery & Authorization',
+                description: 'Automatic tool discovery from registered MCP servers with dual-check authorization—tools are filtered at discovery time AND re-validated at invocation time for defense-in-depth.'
             },
             {
                 icon: Eye,
-                title: 'AI Activity Monitoring',
-                description: 'Track and audit all AI agent activities for compliance and security.',
+                title: 'Token Governance & Observability',
+                description: 'Per-user and per-org token quotas, cost metering, and full observability with trace IDs, latency metrics, tool chain depth, and structured audit logs for every AI operation.',
                 screenshot: '/screenshots/threat-detection.png'
             },
         ],
         benefits: [
-            'Secure AI deployments from day one',
-            'Prevent AI-related data breaches',
-            'Maintain compliance with AI regulations',
-            'Control AI access to sensitive resources'
+            'No model or tool invocation occurs outside KGF',
+            'Identity-aware, policy-driven access to every LLM and tool',
+            'Defense-in-depth with dual authorization checks',
+            'Real-time token governance and cost control',
+            'Complete audit trail for compliance and anomaly detection'
         ],
         detailedContent: {
             overview: [
-                'AI Protection addresses the unique and rapidly evolving security challenges posed by artificial intelligence and machine learning systems operating within your enterprise. As organizations increasingly deploy AI agents—from intelligent chatbots and customer service assistants to automated data processing pipelines and autonomous decision-making systems—these non-human identities gain access to sensitive data, critical APIs, and internal resources at a scale that traditional identity management tools were never designed to handle. Kaappu\'s AI Protection solution treats every AI agent as a first-class identity, applying the same rigorous governance, authentication, and access control standards that you would expect for human users, but tailored specifically for the unique behaviors and risks of AI systems.',
-                'The challenge with AI agents is that they operate at machine speed, making thousands of decisions and API calls per minute without human oversight. A misconfigured AI agent or a compromised machine learning pipeline can exfiltrate vast amounts of sensitive data in seconds, far faster than any human-driven attack. AI Protection mitigates this risk through intelligent behavioral monitoring that establishes baselines for each AI agent\'s normal operations and immediately flags deviations. It enforces fine-grained data access policies—ensuring that an AI assistant can read customer names for support purposes but cannot access Social Security numbers or financial records—and implements automatic credential rotation, rate limiting, and scope restrictions to minimize the blast radius of any potential compromise.',
-                'As AI regulations tighten globally, organizations face mounting pressure to demonstrate that their AI systems are governed, auditable, and compliant. AI Protection provides comprehensive audit trails for every action taken by every AI agent, making it straightforward to satisfy regulatory requirements and respond to compliance inquiries. From securing ChatGPT and large language model integrations in the enterprise, to managing robotic process automation bot identities, to governing AI access to sensitive databases and internal knowledge bases, AI Protection ensures your organization can innovate with AI confidently while maintaining the security and compliance posture your stakeholders demand.'
+                'Enterprise AI usage is fundamentally different from consumer AI usage. Every AI invocation is not merely a prompt-response interaction—it is a governed operation involving identity, authorization, data sensitivity, cost control, audit traceability, and operational observability. Traditional API gateways are insufficient because they operate at the HTTP layer, while AI systems require governance at the semantic execution layer—at the level of model invocation, tool invocation, context propagation, and multi-stage reasoning. The Kappuu Gateway Framework (KGF) is designed as a policy-driven AI execution control plane that sits between AI clients (chat agents, applications) and execution systems (LLMs, MCP tools), ensuring that every action is identity-aware, policy-validated, auditable, and measurable. The fundamental architectural decision is this: no model invocation, no tool invocation, no execution step occurs outside KGF.',
+                'KGF separates the system into three conceptual planes. The Interaction Plane (Chat Box AI Agent) manages user conversation flow. The Control Plane (KGF itself) enforces identity validation, authorization decisions, model selection constraints, tool registration, token governance, logging, and metrics. The Execution Plane consists of registered LLM models and MCP servers with their tools. The interaction plane never directly communicates with the execution plane—the control plane mediates all communication. Every request begins with identity: KGF validates JWT signatures, checks organization membership, extracts identity attributes, and constructs an immutable Identity Context (user_id, org_id, roles, tenant scope, trace_id) that flows through every subsystem. Identity determines not just access control, but which models are visible, which tools are available, what token limits apply, and how audit logs are structured.',
+                'The Model Registry governs all LLM access with metadata including version, cost-per-token, domain specialization, risk classification, and organization scope. Model access is evaluated using fine-grained authorization via OpenFGA (e.g., "user X can_use model Y"). MCP servers are registered with automatic tool discovery, and administrators can enrich tool metadata with sensitivity classification, risk tiers, compliance labels, and operational constraints. Tool authorization uses a dual-check model: tools are filtered at discovery time by identity, and re-authorized at actual invocation time, providing defense-in-depth even against compromised clients. Token governance ensures per-request, daily, and organizational budget caps are enforced before any LLM call incurs cost, with full metering for cost reporting and forecasting.'
             ],
             screenshots: ['/screenshots/threat-detection.png'],
             examples: [
                 {
-                    title: 'AI Agent Identity Management',
-                    scenario: 'Your company deploys 50 AI agents (chatbots, automation scripts, ML pipelines) that access various APIs and databases.',
-                    howItWorks: 'Each AI agent gets a managed identity with: unique credentials, defined scope of access, activity logging, and automatic credential rotation every 24 hours.',
-                    outcome: 'Complete visibility into what each AI agent can access, full audit trail, zero hardcoded credentials.'
+                    title: 'Model Access Authorization',
+                    scenario: 'A marketing analyst queries the AI assistant, which needs to route the request to a specialized Finance LLM to generate a financial summary.',
+                    howItWorks: 'KGF validates the user''s JWT and constructs the Identity Context.It queries OpenFGA to check whether the marketing analyst''s role has "can_use" permission on the Finance model. Authorization fails because the Finance model is restricted to Finance department roles. KGF denies the request and emits a structured audit log.',
+                    outcome: 'Unauthorized model access blocked. The analyst receives a clear denial. Full audit trail recorded. The lightweight LLM automatically routes to a permitted general-purpose model instead.'
                 },
                 {
-                    title: 'Preventing AI Data Exfiltration',
-                    scenario: 'An AI assistant has access to customer data for support queries.',
-                    howItWorks: 'Kaappu enforces data access policies: AI can read customer name/email, but PII like SSN or credit cards are masked. Bulk data exports are blocked.',
-                    outcome: 'AI provides helpful support without risk of exposing sensitive customer data.'
+                    title: 'Tool Invocation Defense-in-Depth',
+                    scenario: 'An AI agent needs to query the HR system API via a registered MCP server to answer an employee''s benefits question.',
+                    howItWorks: 'At discovery time, KGF filters authorized tools for the user—only "Benefits.Read" is returned, not "Salary.Read" or "Termination.Write". Even if a compromised client directly calls the invocation API for "Salary.Read", KGF performs a second authorization check at invocation time and blocks the request. Parameter schema validation, latency capture, and audit logging execute for every tool call.',
+                    outcome: 'Dual authorization ensures no unauthorized tool access. Even a compromised client cannot bypass enforcement. Every tool invocation is fully auditable.'
                 },
                 {
-                    title: 'AI Audit Compliance',
-                    scenario: 'Regulators ask for proof of AI governance and access controls.',
-                    howItWorks: 'Generate comprehensive reports showing: all AI agents, their access levels, every action they performed, and policy enforcement logs.',
-                    outcome: 'Audit completed successfully with detailed AI governance documentation.'
+                    title: 'Token Governance & Cost Control',
+                    scenario: 'A development team''s AI-powered code assistant is generating excessive token usage, threatening to exceed the monthly budget.',
+                    howItWorks: 'KGF estimates expected token usage before each LLM invocation and validates against per-user daily quota (10K tokens), per-team monthly budget ($2,000), and model-specific limits. When the team hits 80% of budget, alerts fire. At 100%, KGF rejects requests before incurring cost. Token consumption is persisted in the metering store with identity context.',
+                outcome: 'No surprise AI bills. Cost attributed per identity, per team, per model. Real-time dashboards show usage trends and enable proactive budget management.'
                 }
             ],
-            useCases: [
-                'Securing ChatGPT/LLM integrations in enterprise',
-                'Managing RPA bot identities',
-                'Governing AI access to sensitive databases'
-            ]
+    useCases: [
+        'Policy-driven AI execution governance',
+        'Identity-aware model and tool authorization',
+        'Enterprise AI cost control and token metering'
+    ]
         }
     },
-    {
-        id: 'management',
+{
+    id: 'management',
         icon: Key,
-        title: 'Kaappu Identity Management',
-        subtitle: 'End-to-End Lifecycle Management',
-        description: 'Comprehensive identity lifecycle management from onboarding to offboarding. Automate provisioning, manage access, and ensure compliance with powerful governance workflows.',
-        features: [
-            {
-                icon: Workflow,
-                title: 'Lifecycle Automation',
-                description: 'Automated joiner, mover, leaver processes with intelligent provisioning.'
-            },
-            {
-                icon: FileCheck,
-                title: 'Access Certification',
-                description: 'Streamlined access review campaigns with AI-assisted recommendations.'
-            },
-            {
-                icon: Settings,
-                title: 'Policy Management',
-                description: 'Define and enforce identity policies across your entire organization.'
-            },
+            title: 'Kaappu Identity Management',
+                subtitle: 'Authentication & Authorization Platform',
+                    description: 'Enterprise-grade authentication and fine-grained authorization for every identity in your organization. From passwordless login and adaptive MFA to attribute-based access control and real-time policy enforcement, Kaappu secures every access decision.',
+                        features: [
+                            {
+                                icon: Lock,
+                                title: 'Adaptive Authentication',
+                                description: 'Passwordless login, SSO, and adaptive MFA that adjusts security requirements based on risk context, device trust, and user behavior.'
+                            },
+                            {
+                                icon: ShieldCheck,
+                                title: 'Fine-Grained Authorization',
+                                description: 'Real-time RBAC, ABAC, and ReBAC policy enforcement that evaluates every access request against dynamic contextual signals.'
+                            },
+                            {
+                                icon: Settings,
+                                title: 'Policy Decision Engine',
+                                description: 'Centralized policy-as-code engine that enforces consistent access decisions across APIs, microservices, and data layers.'
+                            },
+                        ],
+                            benefits: [
+                                'Eliminate passwords with FIDO2/WebAuthn support',
+                                'Context-aware, risk-based access decisions',
+                                'Sub-millisecond authorization at scale',
+                                'Centralized policy enforcement across all apps'
+                            ],
+                                detailedContent: {
+        overview: [
+            'Kaappu Identity Management is a comprehensive authentication and authorization platform that secures every access decision across your enterprise. On the authentication side, Kaappu delivers a modern, frictionless login experience through support for Single Sign-On (SSO) via SAML 2.0 and OpenID Connect, passwordless authentication using FIDO2/WebAuthn standards, and adaptive Multi-Factor Authentication (MFA) that intelligently adjusts its challenge level based on contextual risk signals—such as device trust, geolocation, login time, and user behavior baselines. Whether your users are employees on managed devices, contractors on personal laptops, or partners accessing shared portals, Kaappu ensures the right level of identity assurance without unnecessary friction.',
+            'On the authorization side, Kaappu goes far beyond simple role-based access control. Its policy decision engine evaluates every access request in real time against a rich combination of Role-Based Access Control (RBAC), Attribute-Based Access Control (ABAC), and Relationship-Based Access Control (ReBAC) policies. This means access decisions aren\'t just about what role a user holds—they consider attributes like department, clearance level, data classification, time of day, device posture, and the relationship between the requesting identity and the target resource. Policies are written as code, version-controlled, and enforced consistently across APIs, microservices, databases, cloud infrastructure, and SaaS applications through a single, centralized decision point.',
+            'The result is an identity management layer that acts as the security backbone of your entire application stack. Every API call, every database query, every file access, and every administrative action is mediated by Kaappu\'s authorization engine, ensuring that the principle of least privilege is enforced dynamically—not just at provisioning time, but at every moment of access. Combined with comprehensive session management, token lifecycle control, and real-time credential revocation capabilities, Kaappu Identity Management ensures that authentication and authorization are never an afterthought but the foundational security control for your enterprise.'
         ],
-        benefits: [
-            'Reduce provisioning time by 90%',
-            'Eliminate orphan accounts',
-            'Ensure continuous compliance',
-            'Centralized policy management'
-        ],
-        detailedContent: {
-            overview: [
-                'Kaappu Identity Management provides comprehensive, end-to-end automation of the entire identity lifecycle—from the moment a new employee, contractor, or partner joins your organization to the day they depart, and every role change, department transfer, and access modification in between. Built on a powerful policy engine that integrates with your HR systems, directory services, and cloud applications, Kaappu Identity Management eliminates the manual, error-prone processes that have traditionally plagued identity administration. When HR records a new hire, the system automatically provisions the correct set of accounts, permissions, and group memberships based on the employee\'s role, department, and location, ensuring productive Day 1 access without a single IT ticket.',
-                'The real power of Kaappu Identity Management becomes apparent during the complex transitions that occur throughout an employee\'s tenure. When an employee moves to a new department or takes on a new role, the system automatically adjusts their access profile—revoking permissions that are no longer appropriate and granting new ones required for their updated responsibilities. This "mover" automation is critical for security because it eliminates the dangerous accumulation of access rights that occurs when employees change roles but their old permissions are never revoked. Similarly, when an employee departs, the system executes a comprehensive offboarding sequence that disables accounts, revokes OAuth tokens, removes group memberships, and transfers data ownership—all within seconds of the termination date, leaving zero security gaps.',
-                'Beyond the core joiner-mover-leaver automation, Kaappu Identity Management delivers powerful governance capabilities including streamlined access certification campaigns with AI-assisted recommendations, centralized policy management that enforces consistent access standards across your entire application portfolio, and detailed compliance reporting that satisfies auditor requirements with minimal effort. Whether you are managing thousands of full-time employees, a fluctuating population of contractors and temporary workers, or complex vendor relationships with varying access needs, Kaappu Identity Management brings order, security, and efficiency to every aspect of identity administration.'
-            ],
             examples: [
                 {
-                    title: 'Automated Onboarding (Joiner)',
-                    scenario: 'New marketing manager Sarah joins on Monday. She needs access to 15 different systems.',
-                    howItWorks: 'HR enters Sarah in the system → Kaappu detects new hire → Based on role "Marketing Manager", automatically provisions: Office 365, Salesforce, HubSpot, Slack, and 11 other apps with correct permissions. Manager receives notification to review.',
-                    outcome: 'Sarah has all required access on Day 1. Zero IT tickets. Full compliance documentation.'
+                    title: 'Adaptive MFA & Passwordless Login',
+                    scenario: 'A remote employee logs in from a new device in an unusual geographic location to access a finance application.',
+                    howItWorks: 'Kaappu detects the new device and unfamiliar geolocation. Risk score elevates from Low to High. The system automatically steps up authentication from passwordless (fingerprint) to passwordless + hardware security key + manager approval push notification.',
+                    outcome: 'Legitimate user completes step-up smoothly. Attacker with stolen session cookie is blocked. Zero passwords exposed.'
                 },
                 {
-                    title: 'Role Change (Mover)',
-                    scenario: 'Tom moves from Sales to Customer Success team.',
-                    howItWorks: 'HR updates Tom\'s role → Kaappu automatically: revokes Sales-specific access (Salesforce Sales Cloud), adds Customer Success access (Zendesk, Gainsight), updates group memberships, and notifies both old and new managers.',
-                    outcome: 'Tom has correct access for new role instantly. No lingering access from old role.'
+                    title: 'Fine-Grained API Authorization',
+                    scenario: 'A microservice handling customer orders needs to read customer profiles but should never access payment card data.',
+                    howItWorks: 'Kaappu\'s policy engine enforces ABAC rules: Service identity \"order-service\" is allowed Customer.Read but denied PaymentCard.Read. Every API call is evaluated in <1ms against the policy. If the service attempts to access card data, the request is denied and an alert is triggered.',
+                    outcome: 'Blast radius contained. Even if the service is compromised, payment data remains protected. Full audit trail of every access decision.'
                 },
                 {
-                    title: 'Offboarding (Leaver)',
-                    scenario: 'Employee resigns. Last day is Friday at 5 PM.',
-                    howItWorks: 'HR marks termination date → At 5:01 PM Friday, Kaappu automatically: disables all accounts, revokes OAuth tokens, removes from all groups, transfers file ownership to manager, and generates offboarding report.',
-                    outcome: 'Zero security gap. Complete deprovisioning in seconds. Audit-ready documentation.'
+                    title: 'Context-Aware Access Decisions',
+                    scenario: 'A contractor needs access to a staging environment during business hours but should be blocked from production at all times.',
+                    howItWorks: 'Kaappu evaluates ABAC attributes: identity_type=\"contractor\", time=current_hour, target_env=\"staging|production\". Policy allows staging access only between 9 AM–6 PM and denies production access entirely. No static role changes needed—policy adapts in real time.',
+                    outcome: 'Contractor works productively within safe boundaries. Production environment is never exposed. Policy changes take effect instantly without re-provisioning.'
                 }
             ],
-            useCases: [
-                'Enterprise onboarding automation',
-                'Contractor and vendor lifecycle management',
-                'Compliance-driven access governance'
-            ]
-        }
-    },
-    {
-        id: 'ai-gateway',
+                useCases: [
+                    'Enterprise SSO and passwordless authentication',
+                    'API and microservice authorization',
+                    'Context-aware, risk-based access control'
+                ]
+    }
+},
+{
+    id: 'ai-gateway',
         icon: Layers,
-        title: 'AI Gateway',
-        subtitle: 'Enterprise-Ready AI Access Control',
-        description: 'A unified gateway for managing, securing, and governing all AI and LLM interactions across your enterprise. Control access to AI models, enforce usage policies, and maintain complete visibility over AI operations.',
-        features: [
-            {
-                icon: Globe,
-                title: 'Unified AI Access',
-                description: 'Single point of control for all AI models - OpenAI, Azure AI, Claude, Gemini, and self-hosted LLMs with seamless routing and failover.'
-            },
-            {
-                icon: Gauge,
-                title: 'Rate Limiting & Cost Control',
-                description: 'Enforce usage quotas, rate limits, and budget controls per user, team, or application to prevent runaway AI costs.'
-            },
-            {
-                icon: Database,
-                title: 'Prompt Lifecycle Management',
-                description: 'Version, manage, and monitor prompts across your organization for consistent, high-quality AI interactions.'
-            },
+            title: 'AI Gateway',
+                subtitle: 'Enterprise-Ready AI Access Control',
+                    description: 'A unified gateway for managing, securing, and governing all AI and LLM interactions across your enterprise. Control access to AI models, enforce usage policies, and maintain complete visibility over AI operations.',
+                        features: [
+                            {
+                                icon: Globe,
+                                title: 'Unified AI Access',
+                                description: 'Single point of control for all AI models - OpenAI, Azure AI, Claude, Gemini, and self-hosted LLMs with seamless routing and failover.'
+                            },
+                            {
+                                icon: Gauge,
+                                title: 'Rate Limiting & Cost Control',
+                                description: 'Enforce usage quotas, rate limits, and budget controls per user, team, or application to prevent runaway AI costs.'
+                            },
+                            {
+                                icon: Database,
+                                title: 'Prompt Lifecycle Management',
+                                description: 'Version, manage, and monitor prompts across your organization for consistent, high-quality AI interactions.'
+                            },
+                        ],
+                            benefits: [
+                                'Centralized control over all AI model access',
+                                'Reduce AI infrastructure costs by 40%',
+                                'Full audit trail for compliance',
+                                'Prevent unauthorized AI usage',
+                                'Real-time policy enforcement'
+                            ],
+                                detailedContent: {
+        overview: [
+            'AI Gateway is your organization\'s single, unified control plane for managing, securing, and governing all artificial intelligence and large language model interactions across your enterprise. As teams across your organization adopt different AI models—OpenAI\'s GPT series, Anthropic\'s Claude, Google\'s Gemini, and self-hosted open-source models—the complexity of managing access, controlling costs, and ensuring compliance grows exponentially. AI Gateway sits between your applications and all AI providers, providing centralized routing, authentication, rate limiting, and policy enforcement through a single, elegant interface. Every AI request flows through the gateway, giving you complete visibility and control without requiring any changes to your existing applications.',
+            'Cost management is one of the most pressing challenges organizations face as AI adoption accelerates, and AI Gateway addresses it head-on. With granular budget controls, per-team and per-application rate limiting, and intelligent routing that automatically directs requests to the most cost-effective model for each use case, AI Gateway can reduce your AI infrastructure costs by up to 40%. The gateway\'s smart routing engine evaluates the complexity and requirements of each request and routes it to the optimal model—sending simple tasks to cost-efficient models while reserving premium models for complex reasoning tasks. Real-time dashboards and automated alerts ensure that runaway scripts or unexpected usage spikes are caught immediately, before they result in surprise bills.',
+            'Beyond cost control, AI Gateway provides enterprise-grade governance features that are essential for organizations operating in regulated industries or those with strict data handling requirements. Its prompt lifecycle management system enables organizations to version, approve, and monitor prompt templates, ensuring that customer-facing AI interactions remain consistent, on-brand, and compliant with legal guidelines. The gateway\'s comprehensive audit trail logs every AI interaction with full context—who made the request, which model was used, what data was accessed, and what response was generated—providing the documentation that regulators and auditors require. Whether you are implementing a multi-vendor AI strategy, enforcing AI usage policies across a global workforce, or building the foundation for responsible AI governance, AI Gateway is the critical infrastructure layer that makes it all possible.'
         ],
-        benefits: [
-            'Centralized control over all AI model access',
-            'Reduce AI infrastructure costs by 40%',
-            'Full audit trail for compliance',
-            'Prevent unauthorized AI usage',
-            'Real-time policy enforcement'
-        ],
-        detailedContent: {
-            overview: [
-                'AI Gateway is your organization\'s single, unified control plane for managing, securing, and governing all artificial intelligence and large language model interactions across your enterprise. As teams across your organization adopt different AI models—OpenAI\'s GPT series, Anthropic\'s Claude, Google\'s Gemini, and self-hosted open-source models—the complexity of managing access, controlling costs, and ensuring compliance grows exponentially. AI Gateway sits between your applications and all AI providers, providing centralized routing, authentication, rate limiting, and policy enforcement through a single, elegant interface. Every AI request flows through the gateway, giving you complete visibility and control without requiring any changes to your existing applications.',
-                'Cost management is one of the most pressing challenges organizations face as AI adoption accelerates, and AI Gateway addresses it head-on. With granular budget controls, per-team and per-application rate limiting, and intelligent routing that automatically directs requests to the most cost-effective model for each use case, AI Gateway can reduce your AI infrastructure costs by up to 40%. The gateway\'s smart routing engine evaluates the complexity and requirements of each request and routes it to the optimal model—sending simple tasks to cost-efficient models while reserving premium models for complex reasoning tasks. Real-time dashboards and automated alerts ensure that runaway scripts or unexpected usage spikes are caught immediately, before they result in surprise bills.',
-                'Beyond cost control, AI Gateway provides enterprise-grade governance features that are essential for organizations operating in regulated industries or those with strict data handling requirements. Its prompt lifecycle management system enables organizations to version, approve, and monitor prompt templates, ensuring that customer-facing AI interactions remain consistent, on-brand, and compliant with legal guidelines. The gateway\'s comprehensive audit trail logs every AI interaction with full context—who made the request, which model was used, what data was accessed, and what response was generated—providing the documentation that regulators and auditors require. Whether you are implementing a multi-vendor AI strategy, enforcing AI usage policies across a global workforce, or building the foundation for responsible AI governance, AI Gateway is the critical infrastructure layer that makes it all possible.'
-            ],
             examples: [
                 {
                     title: 'Multi-Model Routing',
@@ -325,13 +326,13 @@ const solutions = [
                     outcome: 'Consistent, compliant AI responses. Full audit trail of prompt changes. Legal team has visibility and control.'
                 }
             ],
-            useCases: [
-                'Enterprise AI cost management',
-                'Multi-vendor AI strategy implementation',
-                'Regulatory compliance for AI usage'
-            ]
-        }
-    },
+                useCases: [
+                    'Enterprise AI cost management',
+                    'Multi-vendor AI strategy implementation',
+                    'Regulatory compliance for AI usage'
+                ]
+    }
+},
 ]
 
 // Read More Modal Component - Fullscreen Version
@@ -569,6 +570,7 @@ function ReadMoreModal({ solution, isOpen, onClose }) {
 export default function Solutions() {
     const [isDemoOpen, setIsDemoOpen] = useState(false)
     const [selectedSolution, setSelectedSolution] = useState(null)
+    const [zoomedImage, setZoomedImage] = useState(null)
     const location = useLocation()
 
     useEffect(() => {
@@ -671,12 +673,24 @@ export default function Solutions() {
                                     >
                                         {/* Screenshot */}
                                         {feature.screenshot && (
-                                            <div className="mb-4 rounded-lg overflow-hidden border border-white/10">
+                                            <div
+                                                className="mb-4 rounded-lg overflow-hidden border border-white/10 cursor-pointer relative group/img"
+                                                onClick={() => setZoomedImage(feature.screenshot)}
+                                            >
                                                 <img
                                                     src={feature.screenshot}
                                                     alt={feature.title}
-                                                    className="w-full h-auto object-contain hover:scale-105 transition-transform duration-300"
+                                                    className="w-full h-auto object-contain group-hover/img:scale-105 transition-transform duration-300"
                                                 />
+                                                {/* Zoom overlay hint */}
+                                                <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/30 transition-all duration-300 flex items-center justify-center">
+                                                    <div className="opacity-0 group-hover/img:opacity-100 transition-opacity duration-300
+                                                                    bg-white/20 backdrop-blur-sm rounded-full p-3">
+                                                        <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
                                             </div>
                                         )}
                                         <div className="flex items-start gap-4">
@@ -731,6 +745,36 @@ export default function Solutions() {
                 isOpen={!!selectedSolution}
                 onClose={() => setSelectedSolution(null)}
             />
+
+            {/* Main page lightbox for zoomed screenshots */}
+            <AnimatePresence>
+                {zoomedImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
+                        onClick={() => setZoomedImage(null)}
+                    >
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setZoomedImage(null) }}
+                            className="absolute top-6 right-6 z-[70] p-3 rounded-xl bg-white/10 border border-white/20 
+                                       hover:bg-white/20 transition-colors group"
+                        >
+                            <X className="w-6 h-6 text-white" />
+                        </button>
+                        <motion.img
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            src={zoomedImage}
+                            alt="Zoomed screenshot"
+                            className="max-w-[95vw] max-h-[90vh] object-contain rounded-2xl border border-white/10 shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     )
 }
