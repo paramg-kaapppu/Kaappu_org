@@ -8,6 +8,7 @@ import {
     X, CheckCircle2, AlertTriangle, Code, Terminal
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
+import KGFArchitectureFlow from '../components/KGFArchitectureFlow'
 
 const solutions = [
     {
@@ -144,67 +145,61 @@ const solutions = [
     },
     {
         id: 'ai-protection',
-        icon: Bot,
+        icon: ShieldCheck,
         title: 'AI Protection',
-        subtitle: 'Kappuu Gateway Framework (KGF)',
-        description: 'A policy-driven AI execution control plane that sits between AI clients and execution systems (LLMs, MCP tools). KGF ensures that every model invocation, tool call, and reasoning step is identity-aware, policy-validated, auditable, and cost-governed—no AI operation occurs outside the gateway.',
+        subtitle: 'Advanced Threat Defense for AI',
+        description: 'Secure your AI infrastructure against prompt injection, data exfiltration, and malicious model manipulation. Our protection layer ensures that your AI agents operate within safe boundaries and do not leak sensitive information.',
         mainScreenshot: '/screenshots/threat-detection.png',
         features: [
             {
+                icon: Shield,
+                title: 'Prompt Injection Defense',
+                description: 'Real-time detection and neutralization of adversarial prompts and jailbreak attempts meant to bypass safety filters.'
+            },
+            {
                 icon: Lock,
-                title: 'Model Registry & Policy Enforcement',
-                description: 'Centralized registry of all LLMs with identity-based access control via OpenFGA. Every model invocation is authorized, token-governed, and audit-logged before execution.'
+                title: 'Data Leakage Prevention',
+                description: 'Scans AI outputs for sensitive PII, internal secrets, or proprietary data before they reach the end user.'
             },
             {
-                icon: Settings,
-                title: 'MCP Tool Discovery & Authorization',
-                description: 'Automatic tool discovery from registered MCP servers with dual-check authorization—tools are filtered at discovery time AND re-validated at invocation time for defense-in-depth.'
-            },
-            {
-                icon: Eye,
-                title: 'Token Governance & Observability',
-                description: 'Per-user and per-org token quotas, cost metering, and full observability with trace IDs, latency metrics, tool chain depth, and structured audit logs for every AI operation.',
+                icon: AlertTriangle,
+                title: 'Anomaly Detection',
+                description: 'Identifies suspicious behavioral patterns in AI interactions that indicate misuse or automated attacks.',
                 screenshot: '/screenshots/threat-detection.png'
             },
         ],
         benefits: [
-            'No model or tool invocation occurs outside KGF',
-            'Identity-aware, policy-driven access to every LLM and tool',
-            'Defense-in-depth with dual authorization checks',
-            'Real-time token governance and cost control',
-            'Complete audit trail for compliance and anomaly detection'
+            'Real-time protection against AI-specific attacks',
+            'Prevent social engineering of LLMs',
+            'Safe-guard sensitive corporate data',
+            'Continuous monitoring of AI agent behavior',
+            'Automated response to security violations'
         ],
         detailedContent: {
             overview: [
-                'Enterprise AI usage is fundamentally different from consumer AI usage. Every AI invocation is not merely a prompt-response interaction—it is a governed operation involving identity, authorization, data sensitivity, cost control, audit traceability, and operational observability. Traditional API gateways are insufficient because they operate at the HTTP layer, while AI systems require governance at the semantic execution layer—at the level of model invocation, tool invocation, context propagation, and multi-stage reasoning. The Kappuu Gateway Framework (KGF) is designed as a policy-driven AI execution control plane that sits between AI clients (chat agents, applications) and execution systems (LLMs, MCP tools), ensuring that every action is identity-aware, policy-validated, auditable, and measurable. The fundamental architectural decision is this: no model invocation, no tool invocation, no execution step occurs outside KGF.',
-                'KGF separates the system into three conceptual planes. The Interaction Plane (Chat Box AI Agent) manages user conversation flow. The Control Plane (KGF itself) enforces identity validation, authorization decisions, model selection constraints, tool registration, token governance, logging, and metrics. The Execution Plane consists of registered LLM models and MCP servers with their tools. The interaction plane never directly communicates with the execution plane—the control plane mediates all communication. Every request begins with identity: KGF validates JWT signatures, checks organization membership, extracts identity attributes, and constructs an immutable Identity Context (user_id, org_id, roles, tenant scope, trace_id) that flows through every subsystem. Identity determines not just access control, but which models are visible, which tools are available, what token limits apply, and how audit logs are structured.',
-                'The Model Registry governs all LLM access with metadata including version, cost-per-token, domain specialization, risk classification, and organization scope. Model access is evaluated using fine-grained authorization via OpenFGA (e.g., "user X can_use model Y"). MCP servers are registered with automatic tool discovery, and administrators can enrich tool metadata with sensitivity classification, risk tiers, compliance labels, and operational constraints. Tool authorization uses a dual-check model: tools are filtered at discovery time by identity, and re-authorized at actual invocation time, providing defense-in-depth even against compromised clients. Token governance ensures per-request, daily, and organizational budget caps are enforced before any LLM call incurs cost, with full metering for cost reporting and forecasting.'
+                'As enterprises increasingly integrate AI into their core operations, the attack surface expands into new dimensions. AI Protection is specifically designed to address the unique vulnerabilities of Large Language Models and AI agents. Unlike traditional cybersecurity, AI security must operate at the level of language and logic, understanding the intent behind prompts and the implications of generated outputs. Our solution provides a comprehensive defense-in-depth strategy that protects your organization from the moment a user enters a prompt to the final generation of a response.',
+                'The core of AI Protection is our proprietary reasoning engine that evaluates every interaction against established security policies and threat signatures. We focus on neutralizing prompt injection attacks—where malicious actors attempt to subvert the model\'s instructions—and jailbreak attempts designed to bypass ethical or operational guardrails. By analyzing the "semantic intent" of interactions, we can detect sophisticated attacks that traditional firewall and WAF solutions would miss.',
+                'Data security is equally critical. AI Protection monitors every response generated by your models, looking for sensitive information such as personally identifiable information (PII), API keys, or proprietary internal documentation. If a violation is detected, the system can automatically redact the information or block the response entirely, ensuring that your AI doesn\'t become a vector for data exfiltration. With AI Protection, you can deploy the most powerful AI models with the confidence that your organizational boundaries are being enforced in real-time.'
             ],
             screenshots: ['/screenshots/threat-detection.png'],
             examples: [
                 {
-                    title: 'Model Access Authorization',
-                    scenario: 'A marketing analyst queries the AI assistant, which needs to route the request to a specialized Finance LLM to generate a financial summary.',
-                    howItWorks: 'KGF validates the user\'s JWT and constructs the Identity Context. It queries OpenFGA to check whether the marketing analyst\'s role has "can_use" permission on the Finance model. Authorization fails because the Finance model is restricted to Finance department roles. KGF denies the request and emits a structured audit log.',
-                    outcome: 'Unauthorized model access blocked. The analyst receives a clear denial. Full audit trail recorded. The lightweight LLM automatically routes to a permitted general-purpose model instead.'
+                    title: 'Prompt Injection Blocking',
+                    scenario: 'A user provides a prompt designed to make the AI ignore its system instructions and reveal internal database schemas.',
+                    howItWorks: 'The protection layer identifies the intent-shift and adversarial patterns in the prompt. It blocks the request before it even reaches the LLM.',
+                    outcome: 'Internal system architecture remains hidden; the attack is logged for the security team to investigate.'
                 },
                 {
-                    title: 'Tool Invocation Defense-in-Depth',
-                    scenario: 'An AI agent needs to query the HR system API via a registered MCP server to answer an employee\'s benefits question.',
-                    howItWorks: 'At discovery time, KGF filters authorized tools for the user—only "Benefits.Read" is returned, not "Salary.Read" or "Termination.Write". Even if a compromised client directly calls the invocation API for "Salary.Read", KGF performs a second authorization check at invocation time and blocks the request. Parameter schema validation, latency capture, and audit logging execute for every tool call.',
-                    outcome: 'Dual authorization ensures no unauthorized tool access. Even a compromised client cannot bypass enforcement. Every tool invocation is fully auditable.'
-                },
-                {
-                    title: 'Token Governance & Cost Control',
-                    scenario: 'A development team\'s AI-powered code assistant is generating excessive token usage, threatening to exceed the monthly budget.',
-                    howItWorks: 'KGF estimates expected token usage before each LLM invocation and validates against per-user daily quota (10K tokens), per-team monthly budget ($2,000), and model-specific limits. When the team hits 80% of budget, alerts fire. At 100%, KGF rejects requests before incurring cost. Token consumption is persisted in the metering store with identity context.',
-                    outcome: 'No surprise AI bills. Cost attributed per identity, per team, per model. Real-time dashboards show usage trends and enable proactive budget management.'
+                    title: 'Sensitive Data Redaction',
+                    scenario: 'An AI assistant accidentally includes a customer\'s credit card number in a support response.',
+                    howItWorks: 'Our output filter scans the generated text, identifies the card pattern, and applies real-time redaction.',
+                    outcome: 'The user receives the helpful advice they needed, but the sensitive data is replaced with [REDACTED].'
                 }
             ],
             useCases: [
-                'Policy-driven AI execution governance',
-                'Identity-aware model and tool authorization',
-                'Enterprise AI cost control and token metering'
+                'Protecting customer-facing chatbots',
+                'Securing internal AI productivity tools',
+                'Compliance-driven AI monitoring'
             ]
         }
     },
@@ -274,62 +269,65 @@ const solutions = [
         id: 'ai-gateway',
         icon: Layers,
         title: 'AI Gateway',
-        subtitle: 'Enterprise-Ready AI Access Control',
-        description: 'A unified gateway for managing, securing, and governing all AI and LLM interactions across your enterprise. Control access to AI models, enforce usage policies, and maintain complete visibility over AI operations.',
+        subtitle: 'Kappuu Gateway Framework (KGF)',
+        description: 'The Kappuu Gateway Framework (KGF) is an enterprise-grade AI execution control plane. It sits between AI clients and execution systems (LLMs, MCP tools) to ensure every model invocation, tool call, and reasoning step is identity-aware, policy-validated, auditable, and cost-governed.',
         features: [
             {
-                icon: Globe,
-                title: 'Unified AI Access',
-                description: 'Single point of control for all AI models - OpenAI, Azure AI, Claude, Gemini, and self-hosted LLMs with seamless routing and failover.'
+                icon: Shield,
+                title: 'Policy-Driven Governance',
+                description: 'A centralized control plane that enforces identity validation, authorization decisions, and model selection constraints for every AI operation.'
+            },
+            {
+                icon: Zap,
+                title: 'MCP Orchestration',
+                description: 'Governed discovery and execution of tools from registered MCP servers, with dual-check authorization and parameter schema validation.'
             },
             {
                 icon: Gauge,
-                title: 'Rate Limiting & Cost Control',
-                description: 'Enforce usage quotas, rate limits, and budget controls per user, team, or application to prevent runaway AI costs.'
-            },
-            {
-                icon: Database,
-                title: 'Prompt Lifecycle Management',
-                description: 'Version, manage, and monitor prompts across your organization for consistent, high-quality AI interactions.'
+                title: 'Token & Cost Control',
+                description: 'Per-user and per-organization token quotas, real-time cost metering, and hard budget caps to prevent runaway AI expenses.'
             },
         ],
         benefits: [
-            'Centralized control over all AI model access',
-            'Reduce AI infrastructure costs by 40%',
-            'Full audit trail for compliance',
-            'Prevent unauthorized AI usage',
-            'Real-time policy enforcement'
+            'No model or tool invocation occurs outside KGF',
+            'Identity-aware access to all LLMs and MCP tools',
+            'Dual-check authorization for defense-in-depth',
+            'Real-time token governance and cost attribution',
+            'Structured audit logs for compliance and observability'
         ],
+        architectureComponent: 'kgf',
         detailedContent: {
             overview: [
-                'AI Gateway is your organization\'s single, unified control plane for managing, securing, and governing all artificial intelligence and large language model interactions across your enterprise. As teams across your organization adopt different AI models—OpenAI\'s GPT series, Anthropic\'s Claude, Google\'s Gemini, and self-hosted open-source models—the complexity of managing access, controlling costs, and ensuring compliance grows exponentially. AI Gateway sits between your applications and all AI providers, providing centralized routing, authentication, rate limiting, and policy enforcement through a single, elegant interface. Every AI request flows through the gateway, giving you complete visibility and control without requiring any changes to your existing applications.',
-                'Cost management is one of the most pressing challenges organizations face as AI adoption accelerates, and AI Gateway addresses it head-on. With granular budget controls, per-team and per-application rate limiting, and intelligent routing that automatically directs requests to the most cost-effective model for each use case, AI Gateway can reduce your AI infrastructure costs by up to 40%. The gateway\'s smart routing engine evaluates the complexity and requirements of each request and routes it to the optimal model—sending simple tasks to cost-efficient models while reserving premium models for complex reasoning tasks. Real-time dashboards and automated alerts ensure that runaway scripts or unexpected usage spikes are caught immediately, before they result in surprise bills.',
-                'Beyond cost control, AI Gateway provides enterprise-grade governance features that are essential for organizations operating in regulated industries or those with strict data handling requirements. Its prompt lifecycle management system enables organizations to version, approve, and monitor prompt templates, ensuring that customer-facing AI interactions remain consistent, on-brand, and compliant with legal guidelines. The gateway\'s comprehensive audit trail logs every AI interaction with full context—who made the request, which model was used, what data was accessed, and what response was generated—providing the documentation that regulators and auditors require. Whether you are implementing a multi-vendor AI strategy, enforcing AI usage policies across a global workforce, or building the foundation for responsible AI governance, AI Gateway is the critical infrastructure layer that makes it all possible.'
+                'Enterprise AI usage is fundamentally different from consumer AI usage. In enterprise systems, every AI invocation is not merely a prompt-response interaction; it is a governed operation involving identity, authorization, data sensitivity, cost control, audit traceability, and operational observability. The Kappuu Gateway Framework (KGF) is designed as a policy-driven AI execution control plane (the "KGF Framework") that mediates all communication between AI clients and execution systems like LLMs and MCP tools.',
+                'The core architectural principle of KGF is that no model or tool invocation occurs outside the gateway. KGF acts as the authoritative policy enforcement and orchestration system, separating the ecosystem into three conceptual planes: the Interaction Plane (User/Agent), the Control Plane (KGF itself), and the Execution Plane (Models and Tools). This layered architecture ensures centralized governance, deterministic enforcement, and auditable execution paths across the entire organization.',
+                'Every request to KGF begins with identity. By validating JWTs and constructing an immutable Identity Context, KGF determines which models are visible, which tools are accessible, and what token limits apply to a specific user or organization. This identity-driven approach is combined with dual-check authorization—where tools are filtered at discovery time and re-validated at invocation time—providing a robust defense-in-depth model that prevents unauthorized AI usage even if a client is compromised.',
+                'Furthermore, KGF provides advanced orchestration and cost management. It allows for multi-model resolution, where a lightweight reasoning LLM can select specialized models (like Finance or Legal models) for specific tasks based on metadata stored in the KGF Model Registry. All usage is tracked in real-time against per-user and per-org token quotas, with structured audit logs capturing every trace ID, identity snapshot, and tool chain for complete observability. KGF transforms AI from a potential shadow-IT risk into a governed, enterprise-ready strategic asset.'
             ],
             examples: [
                 {
-                    title: 'Multi-Model Routing',
-                    scenario: 'Your development team uses OpenAI, but you want to use Claude for customer-facing apps and Gemini for cost-sensitive batch jobs.',
-                    howItWorks: 'Configure routing rules in AI Gateway: Dev team → OpenAI GPT-4, Customer apps → Claude, Batch processing → Gemini Pro. Automatic failover if any model is unavailable.',
-                    outcome: 'Optimal model selection per use case. Zero code changes in applications. Automatic failover ensures 99.9% uptime.'
+                    title: 'Identity-Driven Model Authorization',
+                    scenario: 'A marketing analyst queries the AI assistant, which needs to route the request to a specialized Finance LLM to generate a financial summary.',
+                    howItWorks: 'KGF validates the user\'s Identity Context and queries OpenFGA. Since the analyst lacks "can_use" permission for the Finance model, KGF denies the request and logs the attempt.',
+                    outcome: 'Unauthorized model access blocked. All decision logic resides within KGF, ensuring consistent enforcement.'
                 },
                 {
-                    title: 'Budget & Rate Limiting',
-                    scenario: 'Marketing team\'s AI usage spiked to $15,000 last month due to a runaway script.',
-                    howItWorks: 'Set policies in AI Gateway: Marketing team budget = $3,000/month, alert at 80%, hard stop at 100%. Rate limit = 100 requests/minute per user.',
-                    outcome: 'AI costs under control. Automatic alerts prevent surprise bills. Fair usage across teams.'
+                    title: 'MCP Tool Dual-Check Authorization',
+                    scenario: 'An AI agent needs to query the HR system API via an MCP server to answer an employee\'s benefits question.',
+                    howItWorks: 'KGF filters tools during discovery (returning only Benefits.Read). Even if the client attempts to call Salary.Read directly, KGF performs a second authorization check at invocation time.',
+                    outcome: 'Defense-in-depth ensures that sensitive tools cannot be accessed even by compromised or malicious clients.'
                 },
                 {
-                    title: 'Prompt Governance',
-                    scenario: 'Legal needs to ensure AI responses follow brand guidelines and avoid liability.',
-                    howItWorks: 'Create approved prompt templates in AI Gateway. Enforce that customer-facing AI must use approved prompts. Version control all prompt changes with approval workflow.',
-                    outcome: 'Consistent, compliant AI responses. Full audit trail of prompt changes. Legal team has visibility and control.'
+                    title: 'Token Governance & Budget Enforcement',
+                    scenario: 'A development team\'s AI-powered code assistant generates excessive token usage that threatens to exceed the monthly budget.',
+                    howItWorks: 'KGF estimates token usage before each invocation. When the team hits its budget limit, KGF rejects further requests to prevent runaway costs.',
+                    outcome: 'Predictable AI spending with real-time enforcement. Cost is attributed accurately per identity and department.'
                 }
             ],
             useCases: [
-                'Enterprise AI cost management',
-                'Multi-vendor AI strategy implementation',
-                'Regulatory compliance for AI usage'
+                'Centralized AI governance and policy enforcement',
+                'Enterprise-wide cost and token management',
+                'Secure MCP tool orchestration and discovery',
+                'Identity-aware multi-model routing'
             ]
         }
     },
@@ -365,32 +363,58 @@ function ReadMoreModal({ solution, isOpen, onClose }) {
 
                     {/* Content container */}
                     <div className="relative min-h-screen py-20 px-4">
-                        <div className="max-w-5xl mx-auto">
+                        <div className="max-w-6xl mx-auto">
 
-                            {/* Header */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="text-center mb-12"
-                            >
-                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl 
-                                               bg-gradient-to-br from-kaappu-500/20 to-cyber-purple/20 mb-6">
-                                    <solution.icon className="w-10 h-10 text-kaappu-400" />
-                                </div>
-                                <span className="text-kaappu-400 text-sm font-medium block mb-2">
-                                    {solution.subtitle}
-                                </span>
-                                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                                    {solution.title}
-                                </h1>
-                                <div className="max-w-3xl mx-auto space-y-4">
-                                    {solution.detailedContent.overview.map((paragraph, pIdx) => (
-                                        <p key={pIdx} className="text-slate-400 text-lg leading-relaxed">
-                                            {paragraph}
-                                        </p>
-                                    ))}
-                                </div>
-                            </motion.div>
+                            {/* Main Content Area */}
+                            <div className={solution.architectureComponent === 'kgf' ? "grid lg:grid-cols-2 gap-12 items-start mb-12" : "mb-12"}>
+                                {/* Left Side: Header & Overview */}
+                                <motion.div
+                                    initial={{ opacity: 0, x: solution.architectureComponent === 'kgf' ? -20 : 0, y: solution.architectureComponent === 'kgf' ? 0 : 20 }}
+                                    animate={{ opacity: 1, x: 0, y: 0 }}
+                                >
+                                    <div className={`${solution.architectureComponent === 'kgf' ? 'text-left' : 'text-center'} mb-10`}>
+                                        <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl 
+                                                        bg-gradient-to-br from-kaappu-500/20 to-cyber-purple/20 mb-6`}>
+                                            <solution.icon className="w-10 h-10 text-kaappu-400" />
+                                        </div>
+                                        <span className="text-kaappu-400 text-sm font-medium block mb-2">
+                                            {solution.subtitle}
+                                        </span>
+                                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                                            {solution.title}
+                                        </h1>
+                                    </div>
+                                    <div className="space-y-6">
+                                        {solution.detailedContent.overview.map((paragraph, pIdx) => (
+                                            <p key={pIdx} className="text-slate-400 text-lg leading-relaxed text-left">
+                                                {paragraph}
+                                            </p>
+                                        ))}
+                                    </div>
+                                </motion.div>
+
+                                {/* Right Side: Architecture Animation (KGF only) */}
+                                {solution.architectureComponent === 'kgf' && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                        className="sticky top-20"
+                                    >
+                                        <div className="mb-8">
+                                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-lg bg-kaappu-500/10 flex items-center justify-center">
+                                                    <Layers className="w-5 h-5 text-kaappu-400" />
+                                                </div>
+                                                Architecture Overview
+                                            </h2>
+                                            <div className="glass-card rounded-2xl p-4 border border-white/5 bg-white/[0.01]">
+                                                <KGFArchitectureFlow />
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </div>
 
                             {/* Screenshot Gallery - Large, no heading */}
                             {solution.detailedContent.screenshots && solution.detailedContent.screenshots.length > 0 && (

@@ -15,7 +15,7 @@ export default function Hero() {
         <section className="relative min-h-screen flex items-center pt-20">
             {/* Hero Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-                <div className="flex flex-col gap-12 items-center">
+                <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                     {/* Text Content */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -39,18 +39,18 @@ export default function Hero() {
 
                         {/* Main Heading */}
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                            <span className="text-white">Protect Your </span>
+                            <span className="text-white">Secure the Intersection of </span>
                             <span className="gradient-text-cyber">Identity</span>
-                            <br />
-                            <span className="text-white">Infrastructure with </span>
+                            <span className="text-white"> and </span>
                             <span className="gradient-text">AI</span>
                         </h1>
 
                         {/* Description */}
                         <p className="text-lg text-slate-400 mb-8 max-w-xl leading-relaxed">
-                            Combat identity threats with intelligent governance. Kaappu provides
-                            comprehensive visibility into your identity landscape, powered by
-                            advanced AI to detect, prevent, and respond to threats in real-time.
+                            Kaappu combines AI Gateway, Identity Governance, and Threat Detection
+                            into a unified platform. Secure AI agent access with policy-driven gateways,
+                            gain full visibility into users, roles, and permissions across your identity
+                            infrastructure, and detect threats in real-time with intelligent, automated response.
                         </p>
 
                         {/* CTA Buttons */}
@@ -79,12 +79,16 @@ export default function Hero() {
 
                     {/* Control Loop Animation */}
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8, delay: 0.3 }}
-                        className="w-full max-w-5xl mx-auto"
+                        className="w-full relative flex justify-center lg:justify-end"
                     >
-                        <ControlLoopAnimation />
+                        <div className="relative w-full max-w-[520px]">
+                            {/* Decorative background glow behind the animation */}
+                            <div className="absolute inset-0 bg-kaappu-500/10 rounded-full blur-[100px] animate-pulse pointer-events-none" />
+                            <ControlLoopAnimation />
+                        </div>
                     </motion.div>
                 </div>
 

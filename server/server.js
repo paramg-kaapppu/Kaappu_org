@@ -218,6 +218,94 @@ app.post('/api/demo-request', async (req, res) => {
     }
 });
 
+// Contact form endpoint
+app.post('/api/contact', async (req, res) => {
+    const { name, email, reason, message } = req.body;
+
+    if (!name || !email || !reason || !message) {
+        return res.status(400).json({
+            success: false,
+            error: 'Name, email, reason, and message are required'
+        });
+    }
+
+    const adminEmail = process.env.ADMIN_EMAIL || 'paramg@kaappu.org';
+
+    try {
+        // 1. Send admin notification
+        const adminMailOptions = {
+            from: `"Kaappu Contact Form" <${process.env.EMAIL_USER}>`,
+            to: adminEmail,
+            subject: `New Contact: ${reason} from ${name}`,
+            attachments: [logoAttachment],
+            html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; padding: 32px; border-radius: 16px;">
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <img src="cid:kaappulogo" alt="Kaappu" style="width: 180px; height: auto; margin-bottom: 16px;" />
+                        <p style="color: #94a3b8; margin: 0; font-size: 14px;">New Contact Form Submission</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                        <h2 style="color: #f8fafc; margin: 0 0 16px 0; font-size: 20px;">Contact Details</h2>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr><td style="padding: 8px 0; color: #94a3b8; width: 120px;">Name:</td><td style="padding: 8px 0; color: #f8fafc; font-weight: 600;">${name}</td></tr>
+                            <tr><td style="padding: 8px 0; color: #94a3b8;">Email:</td><td style="padding: 8px 0; color: #60a5fa;"><a href="mailto:${email}" style="color: #60a5fa; text-decoration: none;">${email}</a></td></tr>
+                            <tr><td style="padding: 8px 0; color: #94a3b8;">Reason:</td><td style="padding: 8px 0; color: #fbbf24; font-weight: 600;">${reason}</td></tr>
+                        </table>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                        <h2 style="color: #f8fafc; margin: 0 0 12px 0; font-size: 18px;">Message</h2>
+                        <p style="color: #cbd5e1; margin: 0; line-height: 1.6;">${message}</p>
+                    </div>
+                    <div style="text-align: center; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <p style="color: #64748b; font-size: 12px; margin: 0;">Submitted on ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST</p>
+                    </div>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(adminMailOptions);
+        console.log(`\uD83D\uDCE7 Contact notification sent to ${adminEmail}`);
+
+        // 2. Send user confirmation
+        const userMailOptions = {
+            from: `"Kaappu" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: `We received your message, ${name}!`,
+            attachments: [logoAttachment],
+            html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; padding: 32px; border-radius: 16px;">
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <img src="cid:kaappulogo" alt="Kaappu" style="width: 200px; height: auto; margin-bottom: 16px;" />
+                    </div>
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <div style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border-radius: 50%; padding: 16px; margin-bottom: 16px;">
+                            <span style="font-size: 32px; color: white;">&#10003;</span>
+                        </div>
+                        <h2 style="color: #f8fafc; margin: 0; font-size: 24px;">Message Received!</h2>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                        <p style="color: #cbd5e1; margin: 0 0 16px 0; line-height: 1.7;">Hi <strong style="color: #f8fafc;">${name}</strong>,</p>
+                        <p style="color: #cbd5e1; margin: 0 0 16px 0; line-height: 1.7;">Thank you for reaching out to Kaappu! We've received your message regarding <strong style="color: #60a5fa;">${reason}</strong>.</p>
+                        <p style="color: #cbd5e1; margin: 0; line-height: 1.7;">Our team will review your message and get back to you within <strong style="color: #22c55e;">24 hours</strong>.</p>
+                    </div>
+                    <div style="text-align: center; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <p style="color: #94a3b8; font-size: 14px; margin: 0;">Kaappu &middot; AI-Powered Identity Governance & Protection</p>
+                    </div>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(userMailOptions);
+        console.log(`\uD83D\uDCE7 Contact confirmation sent to ${email}`);
+
+        res.json({ success: true, message: 'Message sent successfully!' });
+
+    } catch (error) {
+        console.error('\u274C Error sending contact email:', error);
+        res.status(500).json({ success: false, error: 'Failed to send message. Please try again later.' });
+    }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -231,5 +319,7 @@ app.listen(PORT, () => {
     console.log(`\uD83D\uDCE7 Admin notifications will be sent to: ${process.env.ADMIN_EMAIL || 'paramg@kaappu.org'}`);
     console.log('\n Available endpoints:');
     console.log(`   POST /api/demo-request - Submit demo request`);
+    console.log(`   POST /api/contact      - Submit contact form`);
     console.log(`   GET  /api/health       - Health check\n`);
 });
+

@@ -4,6 +4,7 @@ import {
     Send, User, Mail, Building, MessageSquare, Phone,
     Shield, CheckCircle2, Clock, Users, Zap
 } from 'lucide-react'
+import ContactModal from '../components/ContactModal'
 
 const benefits = [
     {
@@ -54,6 +55,7 @@ export default function Demo() {
     const [isSubmitted, setIsSubmitted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
+    const [isContactOpen, setIsContactOpen] = useState(false)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -359,17 +361,24 @@ export default function Demo() {
                                 <p className="text-slate-400 text-sm mb-4">
                                     Contact our team directly for urgent inquiries.
                                 </p>
-                                <a
-                                    href="mailto:demo@kaappu.org"
-                                    className="text-kaappu-400 hover:text-kaappu-300 transition-colors"
+                                <button
+                                    onClick={() => setIsContactOpen(true)}
+                                    className="text-kaappu-400 hover:text-kaappu-300 transition-colors cursor-pointer bg-transparent border-none p-0 flex items-center gap-2"
                                 >
-                                    demo@kaappu.org
-                                </a>
+                                    <Mail className="w-4 h-4" />
+                                    Contact Us Directly
+                                </button>
                             </div>
                         </motion.div>
                     </div>
                 </div>
             </section>
+
+            {/* Contact Modal */}
+            <ContactModal
+                isOpen={isContactOpen}
+                onClose={() => setIsContactOpen(false)}
+            />
         </>
     )
 }

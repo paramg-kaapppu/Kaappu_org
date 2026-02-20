@@ -4,563 +4,409 @@ export default function ControlLoopAnimation() {
     const containerRef = useRef(null)
 
     useEffect(() => {
-        // Hover z-index effect
-        const nodes = containerRef.current?.querySelectorAll('.cl-node')
+        const nodes = containerRef.current?.querySelectorAll('.cla-node')
         if (!nodes) return
         nodes.forEach(n => {
-            n.addEventListener('mouseenter', () => { n.style.zIndex = '20' })
+            n.addEventListener('mouseenter', () => { n.style.zIndex = '30' })
             n.addEventListener('mouseleave', () => { n.style.zIndex = '' })
         })
     }, [])
 
+    // 6 nodes arranged clockwise from top
+    const nodeData = [
+        { id: 'user', label: 'User /', label2: 'AI Agent', sub: '', angle: 270, color: '#00d4b4', zone: 'gw' },
+        { id: 'gateway', label: 'AI Gateway', label2: 'Dataplane', sub: 'Filter · Route', angle: 330, color: '#D9A741', zone: 'gw' },
+        { id: 'authz', label: 'AuthZ', label2: '', sub: 'Policy Engine', angle: 30, color: '#FF6A00', zone: 'gw' },
+        { id: 'audit', label: 'Audit Logs', label2: '', sub: 'All Events', angle: 90, color: '#DD344C', zone: 'both' },
+        { id: 'igov', label: 'Identity', label2: 'Governance', sub: 'Ingest · Analyse', angle: 150, color: '#8C4FFF', zone: 'ig' },
+        { id: 'graphrag', label: 'GraphRAG', label2: '+ LLM', sub: 'AI Reasoning', angle: 210, color: '#38bdf8', zone: 'ig' },
+    ]
+
+    // Flow arrows (from -> to, color, label)
+    const flows = [
+        { from: 0, to: 1, color: '#00d4b4', id: 'qf' },
+        { from: 1, to: 2, color: '#ff6a00', id: 'az' },
+        { from: 2, to: 3, color: '#e7157b', id: 'ae' },
+        { from: 3, to: 4, color: '#7c6bff', id: 'ia' },
+        { from: 4, to: 5, color: '#22c55e', id: 'pu' },
+        { from: 5, to: 0, color: '#fbbf24', id: 'pf' },
+    ]
+
+    const legend = [
+        { color: '#00d4b4', label: 'Query Flow' },
+        { color: '#ff6a00', label: 'AuthZ Data' },
+        { color: '#e7157b', label: 'Audit Events' },
+        { color: '#7c6bff', label: 'IGAI Analysis' },
+        { color: '#22c55e', label: 'Policy Update' },
+        { color: '#fbbf24', label: 'Permission Fix' },
+    ]
+
+    const SIZE = 520
+    const CX = SIZE / 2
+    const CY = SIZE / 2
+    const RADIUS = 195
+    const RING_OUTER = 230
+    const RING_INNER = 165
+
+    const getPos = (angleDeg) => {
+        const rad = (angleDeg * Math.PI) / 180
+        return { x: CX + RADIUS * Math.cos(rad), y: CY + RADIUS * Math.sin(rad) }
+    }
+
+    // Generate arc path between two angle positions
+    const getArcPath = (fromAngle, toAngle, r) => {
+        const fromRad = (fromAngle * Math.PI) / 180
+        const toRad = (toAngle * Math.PI) / 180
+        const x1 = CX + r * Math.cos(fromRad)
+        const y1 = CY + r * Math.sin(fromRad)
+        const x2 = CX + r * Math.cos(toRad)
+        const y2 = CY + r * Math.sin(toRad)
+        // Determine if we should go clockwise (large arc flag)
+        let angleDiff = toAngle - fromAngle
+        if (angleDiff < 0) angleDiff += 360
+        const largeArc = angleDiff > 180 ? 1 : 0
+        return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`
+    }
+
+    // Node icons as inline SVGs
+    const renderIcon = (node) => {
+        const s = 52
+        switch (node.id) {
+            case 'user':
+                return (
+                    <svg width={s} height={s} viewBox="0 0 54 54">
+                        <circle cx="27" cy="27" r="25" fill="#0e2a3a" stroke="rgba(0,212,180,.4)" strokeWidth="1.5" />
+                        <circle cx="27" cy="20" r="9" fill="#00d4b4" opacity=".85" />
+                        <path d="M10,46 Q10,34 27,34 Q44,34 44,46" fill="#00d4b4" opacity=".7" />
+                    </svg>
+                )
+            case 'gateway':
+                return (
+                    <svg width={s} height={s} viewBox="0 0 60 60">
+                        <rect width="60" height="60" rx="8" fill="#D9A741" />
+                        <rect x="8" y="11" width="44" height="8" rx="2.5" fill="#fff" opacity=".9" />
+                        <rect x="8" y="23" width="44" height="8" rx="2.5" fill="#fff" opacity=".7" />
+                        <rect x="8" y="35" width="44" height="8" rx="2.5" fill="#fff" opacity=".5" />
+                        <path d="M12,50 L30,50 L42,60" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity=".85" />
+                        <path d="M30,50 L42,40" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" opacity=".85" />
+                    </svg>
+                )
+            case 'authz':
+                return (
+                    <svg width={s} height={s} viewBox="0 0 54 62">
+                        <path d="M27,2 L52,13 L52,32 C52,50 27,60 27,60 C27,60 2,50 2,32 L2,13 Z" fill="#FF6A00" stroke="#cc5200" strokeWidth="1.5" />
+                        <rect x="17" y="30" width="20" height="14" rx="3" fill="#fff" opacity=".95" />
+                        <path d="M20,30 v-5 a7,7 0 0 1 14,0 v5" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
+                        <circle cx="27" cy="36" r="2.8" fill="#FF6A00" />
+                        <rect x="25.5" y="38" width="3" height="4.5" rx="1" fill="#FF6A00" />
+                    </svg>
+                )
+            case 'audit':
+                return (
+                    <svg width={s} height={s} viewBox="0 0 54 54">
+                        <rect width="54" height="54" rx="8" fill="#DD344C" />
+                        <rect x="10" y="7" width="26" height="34" rx="3" fill="none" stroke="#fff" strokeWidth="2" />
+                        <line x1="15" y1="16" x2="31" y2="16" stroke="#fff" strokeWidth="1.8" />
+                        <line x1="15" y1="22" x2="31" y2="22" stroke="#fff" strokeWidth="1.8" />
+                        <line x1="15" y1="28" x2="25" y2="28" stroke="#fff" strokeWidth="1.8" />
+                        <circle cx="38" cy="38" r="11" fill="#b81e34" stroke="#fff" strokeWidth="1.5" />
+                        <polyline points="32,38 36.5,42 45,33" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                )
+            case 'igov':
+                return (
+                    <svg width={s} height={s} viewBox="0 0 60 60">
+                        <rect width="60" height="60" rx="8" fill="#8C4FFF" />
+                        <circle cx="30" cy="22" r="12" fill="none" stroke="#fff" strokeWidth="2" opacity=".85" />
+                        <path d="M22,22 L26,26 L38,18" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <line x1="14" y1="38" x2="46" y2="38" stroke="#fff" strokeWidth="1.8" opacity=".7" />
+                        <line x1="18" y1="43" x2="42" y2="43" stroke="#fff" strokeWidth="1.8" opacity=".5" />
+                        <line x1="22" y1="48" x2="38" y2="48" stroke="#fff" strokeWidth="1.8" opacity=".35" />
+                    </svg>
+                )
+            case 'graphrag':
+                return (
+                    <svg width={s} height={s} viewBox="0 0 60 58">
+                        <rect width="60" height="58" rx="8" fill="#1a1040" />
+                        <rect x="0" y="0" width="60" height="58" rx="8" fill="none" stroke="rgba(56,189,248,.35)" strokeWidth="1.5" />
+                        <ellipse cx="30" cy="26" rx="16" ry="14" fill="none" stroke="#38bdf8" strokeWidth="1.8" opacity=".8" />
+                        <circle cx="22" cy="22" r="3" fill="#38bdf8" opacity=".9" />
+                        <circle cx="38" cy="22" r="3" fill="#38bdf8" opacity=".9" />
+                        <circle cx="22" cy="34" r="3" fill="#38bdf8" opacity=".9" />
+                        <circle cx="38" cy="34" r="3" fill="#38bdf8" opacity=".9" />
+                        <circle cx="30" cy="26" r="4" fill="#fff" opacity=".95" />
+                        <line x1="22" y1="22" x2="30" y2="26" stroke="#38bdf8" strokeWidth="1.2" opacity=".6" />
+                        <line x1="38" y1="22" x2="30" y2="26" stroke="#38bdf8" strokeWidth="1.2" opacity=".6" />
+                        <line x1="22" y1="34" x2="30" y2="26" stroke="#38bdf8" strokeWidth="1.2" opacity=".6" />
+                        <line x1="38" y1="34" x2="30" y2="26" stroke="#38bdf8" strokeWidth="1.2" opacity=".6" />
+                        <text x="30" y="50" textAnchor="middle" fill="#38bdf8" fontSize="8" fontFamily="monospace" opacity=".8">LLM</text>
+                    </svg>
+                )
+            default:
+                return null
+        }
+    }
+
     return (
-        <div ref={containerRef} className="cl-root">
+        <div ref={containerRef} className="cla-root">
             <style>{`
-                .cl-root {
+                .cla-root {
                     width: 100%;
-                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
                     font-family: 'DM Mono', 'Syne', monospace;
                 }
 
-                .cl-canvas {
-                    width: 100%;
-                    display: grid;
-                    grid-template-columns: 1fr auto 1fr;
-                    gap: 0;
-                }
-
-                .cl-zone {
-                    border-radius: 10px;
-                    padding: 18px 16px 20px;
+                .cla-container {
                     position: relative;
-                    box-shadow: 0 8px 32px rgba(0,0,0,.45);
+                    width: ${SIZE}px;
+                    height: ${SIZE}px;
+                    max-width: 100%;
+                    aspect-ratio: 1;
                 }
 
-                .cl-zone-gw {
-                    background: linear-gradient(145deg, rgba(14,17,32,.95), rgba(10,22,20,.95));
-                    border: 1.5px solid rgba(0,212,180,.22);
-                    box-shadow: 0 8px 32px rgba(0,0,0,.45), 0 0 60px rgba(0,212,180,.14);
+                .cla-svg {
+                    position: absolute;
+                    inset: 0;
+                    width: 100%;
+                    height: 100%;
                 }
 
-                .cl-zone-ig {
-                    background: linear-gradient(145deg, rgba(14,17,32,.95), rgba(12,10,28,.95));
-                    border: 1.5px solid rgba(124,107,255,.25);
-                    box-shadow: 0 8px 32px rgba(0,0,0,.45), 0 0 60px rgba(124,107,255,.12);
-                }
-
-                .cl-zone-label {
-                    font-size: .55rem;
-                    font-weight: 700;
-                    letter-spacing: 3px;
-                    text-transform: uppercase;
-                    font-family: 'DM Mono', monospace;
-                    margin-bottom: 14px;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-                .cl-zone-label::before {
-                    content: '';
-                    width: 24px;
-                    height: 2px;
-                    border-radius: 2px;
-                }
-                .cl-zone-gw .cl-zone-label { color: #00d4b4; }
-                .cl-zone-gw .cl-zone-label::before { background: #00d4b4; }
-                .cl-zone-ig .cl-zone-label { color: #7c6bff; }
-                .cl-zone-ig .cl-zone-label::before { background: #7c6bff; }
-
-                .cl-node {
+                .cla-node {
+                    position: absolute;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 5px;
+                    gap: 4px;
                     cursor: default;
                     transition: transform .25s ease;
-                    position: relative;
                     opacity: 0;
-                    animation: clNodeFadeUp .5s ease forwards;
+                    animation: claNodeFadeIn .5s ease forwards;
+                    z-index: 10;
                 }
-                .cl-node:hover { transform: translateY(-4px); }
-                .cl-node:hover .cl-nicon { filter: drop-shadow(0 8px 18px rgba(255,255,255,.2)); }
+                .cla-node:hover {
+                    transform: scale(1.08);
+                }
+                .cla-node:hover .cla-nicon {
+                    filter: drop-shadow(0 4px 16px rgba(255,255,255,.25));
+                }
 
-                .cl-nicon {
-                    transition: filter .25s;
+                .cla-nicon {
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    transition: filter .25s;
                 }
 
-                .cl-nlabel {
-                    font-size: .55rem;
+                .cla-nlabel {
+                    font-size: .6rem;
                     font-weight: 600;
                     color: #f0f4ff;
                     text-align: center;
-                    max-width: 72px;
-                    line-height: 1.35;
+                    max-width: 80px;
+                    line-height: 1.3;
                     letter-spacing: .2px;
                 }
-                .cl-nsub {
-                    font-size: .48rem;
+                .cla-nsub {
+                    font-size: .5rem;
                     font-family: 'DM Mono', monospace;
                     color: #8892aa;
                     text-align: center;
-                    max-width: 72px;
+                    max-width: 80px;
                     line-height: 1.3;
                 }
 
-                .cl-gw-top {
-                    display: flex;
-                    align-items: center;
-                    gap: 0;
-                    margin-bottom: 18px;
-                }
-                .cl-gw-bottom {
-                    display: flex;
-                    justify-content: space-around;
-                    align-items: flex-start;
-                    padding-top: 4px;
-                }
-
-                .cl-ig-row {
-                    display: flex;
-                    align-items: center;
-                    gap: 0;
-                }
-                .cl-ig-bottom-row {
-                    display: flex;
-                    justify-content: space-around;
-                    align-items: flex-start;
-                    padding-top: 6px;
-                }
-
-                .cl-iarrow {
-                    flex: 1;
-                    min-width: 12px;
-                    height: 18px;
-                    display: flex;
-                    align-items: center;
-                }
-                .cl-iarrow svg { width: 100%; height: 18px; overflow: visible; }
-
-                .cl-bridge {
-                    width: 100px;
+                .cla-center-hub {
+                    position: absolute;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    justify-content: space-between;
-                    padding: 0 2px;
-                    position: relative;
-                    z-index: 10;
+                    justify-content: center;
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    background: radial-gradient(circle, rgba(20,24,40,.95) 0%, rgba(10,14,26,.98) 100%);
+                    border: 2px solid rgba(251,191,36,.3);
+                    box-shadow: 0 0 40px rgba(251,191,36,.12), 0 0 80px rgba(0,0,0,.5);
+                    z-index: 5;
                 }
 
-                .cl-bridge-label {
-                    font-size: .48rem;
-                    font-family: 'DM Mono', monospace;
-                    color: #8892aa;
-                    text-align: center;
-                    white-space: nowrap;
-                    line-height: 1.3;
+                .cla-hub-icon {
+                    font-size: 1.4rem;
+                    margin-bottom: 4px;
+                    animation: claHubPulse 3s ease-in-out infinite;
                 }
 
-                .cl-loop-badge {
-                    background: linear-gradient(135deg, #b45309, #f59e0b);
-                    border-radius: 20px;
-                    padding: 2px 10px;
-                    font-size: .5rem;
+                .cla-hub-title {
+                    font-size: .55rem;
                     font-weight: 700;
-                    letter-spacing: 2px;
-                    color: #fff;
+                    letter-spacing: 2.5px;
                     text-transform: uppercase;
-                    font-family: 'DM Mono', monospace;
-                    box-shadow: 0 0 18px rgba(245,158,11,.4);
-                    white-space: nowrap;
-                }
-
-                .cl-return-label {
-                    font-size: .48rem;
-                    font-family: 'DM Mono', monospace;
                     color: #fbbf24;
                     text-align: center;
-                    white-space: nowrap;
-                    font-weight: 600;
+                    line-height: 1.3;
+                }
+                .cla-hub-sub {
+                    font-size: .45rem;
+                    color: #8892aa;
+                    margin-top: 2px;
+                    letter-spacing: 1px;
+                    text-transform: uppercase;
                 }
 
-                .cl-vsep {
-                    display: flex;
-                    justify-content: center;
-                    padding: 2px 0;
+                .cla-zone-text {
+                    font-size: .5rem;
+                    font-weight: 700;
+                    letter-spacing: 4px;
+                    text-transform: uppercase;
+                    font-family: 'DM Mono', monospace;
+                    fill-opacity: .45;
                 }
 
-                .cl-report-glow {
-                    animation: clReportPulse 2.5s ease-in-out infinite;
+                @keyframes claNodeFadeIn {
+                    from { opacity: 0; transform: scale(.8); }
+                    to { opacity: 1; transform: scale(1); }
                 }
-                @keyframes clReportPulse {
-                    0%, 100% { filter: drop-shadow(0 0 6px rgba(34,197,94,.3)); }
-                    50% { filter: drop-shadow(0 0 20px rgba(34,197,94,.8)); }
+                @keyframes claHubPulse {
+                    0%, 100% { transform: scale(1); opacity: .9; }
+                    50% { transform: scale(1.05); opacity: 1; }
                 }
-
-                @keyframes clNodeFadeUp {
-                    from { opacity: 0; transform: translateY(12px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes clGearSpin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
+                @keyframes claDash {
+                    from { stroke-dashoffset: 20; }
+                    to { stroke-dashoffset: 0; }
                 }
 
-                .cl-d1 { animation-delay: .3s; }
-                .cl-d2 { animation-delay: .5s; }
-                .cl-d3 { animation-delay: .7s; }
-                .cl-d4 { animation-delay: .9s; }
-                .cl-d5 { animation-delay: 1.1s; }
-                .cl-d6 { animation-delay: 1.3s; }
-                .cl-d7 { animation-delay: 1.5s; }
-                .cl-d8 { animation-delay: 1.7s; }
-                .cl-d9 { animation-delay: 1.9s; }
-                .cl-d10 { animation-delay: 2.1s; }
+                .cla-d0 { animation-delay: .2s; }
+                .cla-d1 { animation-delay: .4s; }
+                .cla-d2 { animation-delay: .6s; }
+                .cla-d3 { animation-delay: .8s; }
+                .cla-d4 { animation-delay: 1.0s; }
+                .cla-d5 { animation-delay: 1.2s; }
 
-                .cl-gear-spin {
-                    animation: clGearSpin 3s linear infinite;
-                    transform-origin: 28px 44px;
+                /* Responsive scaling */
+                @media (max-width: 600px) {
+                    .cla-container {
+                        transform: scale(0.65);
+                        transform-origin: top center;
+                    }
+                }
+                @media (min-width: 601px) and (max-width: 900px) {
+                    .cla-container {
+                        transform: scale(0.85);
+                        transform-origin: top center;
+                    }
                 }
             `}</style>
 
-            <div className="cl-canvas">
+            <div className="cla-container">
+                {/* SVG Layer: rings, arrows, zone labels */}
+                <svg className="cla-svg" viewBox={`0 0 ${SIZE} ${SIZE}`}>
+                    <defs>
+                        {flows.map(f => (
+                            <marker key={`m-${f.id}`} id={`cla-m-${f.id}`} markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                                <polygon points="0 0,8 3,0 6" fill={f.color} />
+                            </marker>
+                        ))}
+                    </defs>
 
-                {/* ═══ LEFT — AI GATEWAY ZONE ═══ */}
-                <div className="cl-zone cl-zone-gw">
-                    <div className="cl-zone-label">⬡ AI Gateway</div>
+                    {/* Outer ring (AI Gateway Zone) */}
+                    <circle cx={CX} cy={CY} r={RING_OUTER} fill="none" stroke="rgba(0,212,180,.12)" strokeWidth="40" />
+                    <circle cx={CX} cy={CY} r={RING_OUTER} fill="none" stroke="rgba(0,212,180,.18)" strokeWidth="1.5" />
+                    <circle cx={CX} cy={CY} r={RING_OUTER + 20} fill="none" stroke="rgba(0,212,180,.08)" strokeWidth="1" />
 
-                    {/* ROW 1: User → Gateway → AuthZ */}
-                    <div className="cl-gw-top">
-                        {/* User */}
-                        <div className="cl-node cl-d1">
-                            <div className="cl-nicon">
-                                <svg width="44" height="44" viewBox="0 0 54 54">
-                                    <circle cx="27" cy="27" r="25" fill="#0e2a3a" stroke="rgba(0,212,180,.4)" strokeWidth="1.5" />
-                                    <circle cx="27" cy="20" r="9" fill="#00d4b4" opacity=".85" />
-                                    <path d="M10,46 Q10,34 27,34 Q44,34 44,46" fill="#00d4b4" opacity=".7" />
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">User /<br />AI Agent</span>
-                        </div>
+                    {/* Inner ring (IGAI Governance Zone) */}
+                    <circle cx={CX} cy={CY} r={RING_INNER} fill="none" stroke="rgba(124,107,255,.1)" strokeWidth="30" />
+                    <circle cx={CX} cy={CY} r={RING_INNER} fill="none" stroke="rgba(124,107,255,.2)" strokeWidth="1.5" />
 
-                        {/* arrow → */}
-                        <div className="cl-iarrow">
-                            <svg viewBox="0 0 60 18" preserveAspectRatio="none">
-                                <defs><marker id="cla1" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#00d4b4" /></marker></defs>
-                                <rect x="0" y="5" width="60" height="8" rx="4" fill="rgba(0,212,180,.12)" stroke="rgba(0,212,180,.3)" strokeWidth="1" />
-                                <line x1="3" y1="9" x2="52" y2="9" stroke="#00d4b4" strokeWidth="1.8" strokeDasharray="6 4" markerEnd="url(#cla1)">
-                                    <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1.1s" repeatCount="indefinite" />
-                                </line>
-                            </svg>
-                        </div>
+                    {/* Center circle background */}
+                    <circle cx={CX} cy={CY} r="62" fill="rgba(10,14,26,.9)" stroke="rgba(251,191,36,.2)" strokeWidth="1.5" />
+                    <circle cx={CX} cy={CY} r="55" fill="none" stroke="rgba(251,191,36,.1)" strokeWidth="1" strokeDasharray="4 6" />
 
-                        {/* AI Gateway Dataplane */}
-                        <div className="cl-node cl-d2">
-                            <div className="cl-nicon">
-                                <svg width="48" height="48" viewBox="0 0 60 60">
-                                    <rect width="60" height="60" rx="8" fill="#D9A741" />
-                                    <rect x="8" y="11" width="44" height="8" rx="2.5" fill="#fff" opacity=".9" />
-                                    <rect x="8" y="23" width="44" height="8" rx="2.5" fill="#fff" opacity=".7" />
-                                    <rect x="8" y="35" width="44" height="8" rx="2.5" fill="#fff" opacity=".5" />
-                                    <path d="M12,50 L30,50 L42,60" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity=".85" />
-                                    <path d="M30,50 L42,40" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" opacity=".85" />
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">AI Gateway<br />Dataplane</span>
-                            <span className="cl-nsub">Filter · Route</span>
-                        </div>
+                    {/* Zone labels along arcs */}
+                    <path id="cla-outer-arc" d={`M ${CX - RING_OUTER - 8} ${CY} A ${RING_OUTER + 8} ${RING_OUTER + 8} 0 0 1 ${CX} ${CY - RING_OUTER - 8}`} fill="none" />
+                    <text className="cla-zone-text" fill="#00d4b4">
+                        <textPath href="#cla-outer-arc" startOffset="25%">AI Gateway Zone</textPath>
+                    </text>
 
-                        {/* arrow → */}
-                        <div className="cl-iarrow">
-                            <svg viewBox="0 0 60 18" preserveAspectRatio="none">
-                                <defs><marker id="cla2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#ff6a00" /></marker></defs>
-                                <rect x="0" y="5" width="60" height="8" rx="4" fill="rgba(255,106,0,.12)" stroke="rgba(255,106,0,.35)" strokeWidth="1" />
-                                <line x1="3" y1="9" x2="52" y2="9" stroke="#ff6a00" strokeWidth="1.8" strokeDasharray="6 4" markerEnd="url(#cla2)">
-                                    <animate attributeName="stroke-dashoffset" from="20" to="0" dur="1s" repeatCount="indefinite" />
-                                </line>
-                            </svg>
-                        </div>
+                    <path id="cla-inner-arc" d={`M ${CX + RING_INNER - 15} ${CY + RING_INNER - 40} A ${RING_INNER} ${RING_INNER} 0 0 1 ${CX - RING_INNER + 15} ${CY + RING_INNER - 40}`} fill="none" />
+                    <text className="cla-zone-text" fill="#7c6bff">
+                        <textPath href="#cla-inner-arc" startOffset="15%">IGAI Governance Zone</textPath>
+                    </text>
 
-                        {/* AuthZ */}
-                        <div className="cl-node cl-d3">
-                            <div className="cl-nicon">
-                                <svg width="44" height="50" viewBox="0 0 54 62">
-                                    <path d="M27,2 L52,13 L52,32 C52,50 27,60 27,60 C27,60 2,50 2,32 L2,13 Z" fill="#FF6A00" stroke="#cc5200" strokeWidth="1.5" />
-                                    <rect x="17" y="30" width="20" height="14" rx="3" fill="#fff" opacity=".95" />
-                                    <path d="M20,30 v-5 a7,7 0 0 1 14,0 v5" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
-                                    <circle cx="27" cy="36" r="2.8" fill="#FF6A00" />
-                                    <rect x="25.5" y="38" width="3" height="4.5" rx="1" fill="#FF6A00" />
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">AuthZ</span>
-                            <span className="cl-nsub">Policy Engine</span>
-                        </div>
-                    </div>
+                    {/* Flow arrows (animated arcs between nodes) */}
+                    {flows.map((f, idx) => {
+                        const fromNode = nodeData[f.from]
+                        const toNode = nodeData[f.to]
+                        // Offset angles slightly inward for arrow endpoints
+                        const offsetFrom = 8
+                        const offsetTo = -8
+                        const arcR = RADIUS + 5
+                        const path = getArcPath(fromNode.angle + offsetFrom, toNode.angle + offsetTo, arcR)
+                        const dur = `${1.0 + idx * 0.15}s`
 
-                    {/* ↓ arrow from Dataplane to Audit */}
-                    <div style={{ display: 'flex', justifyContent: 'space-around', padding: '0 20px 2px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', marginLeft: '50px' }}>
-                            <svg width="14" height="22">
-                                <line x1="7" y1="0" x2="7" y2="16" stroke="#e7157b" strokeWidth="2" strokeDasharray="4 3">
-                                    <animate attributeName="stroke-dashoffset" from="14" to="0" dur="1s" repeatCount="indefinite" />
-                                </line>
-                                <polygon points="0,16 7,22 14,16" fill="#e7157b" />
-                            </svg>
-                        </div>
-                        <div style={{ width: '60px' }}></div>
-                    </div>
+                        return (
+                            <g key={f.id}>
+                                {/* Glow track */}
+                                <path d={path} fill="none" stroke={f.color} strokeWidth="6" strokeOpacity=".08" />
+                                {/* Arrow path */}
+                                <path
+                                    d={path}
+                                    fill="none"
+                                    stroke={f.color}
+                                    strokeWidth="2.5"
+                                    strokeDasharray="8 5"
+                                    strokeLinecap="round"
+                                    markerEnd={`url(#cla-m-${f.id})`}
+                                    opacity=".85"
+                                >
+                                    <animate attributeName="stroke-dashoffset" from="26" to="0" dur={dur} repeatCount="indefinite" />
+                                </path>
+                            </g>
+                        )
+                    })}
+                </svg>
 
-                    {/* ROW 2: Audit Logs + MCP Servers */}
-                    <div className="cl-gw-bottom">
-                        {/* Audit Logs */}
-                        <div className="cl-node cl-d4">
-                            <div className="cl-nicon">
-                                <svg width="44" height="44" viewBox="0 0 54 54">
-                                    <rect width="54" height="54" rx="8" fill="#DD344C" />
-                                    <rect x="10" y="7" width="26" height="34" rx="3" fill="none" stroke="#fff" strokeWidth="2" />
-                                    <line x1="15" y1="16" x2="31" y2="16" stroke="#fff" strokeWidth="1.8" />
-                                    <line x1="15" y1="22" x2="31" y2="22" stroke="#fff" strokeWidth="1.8" />
-                                    <line x1="15" y1="28" x2="25" y2="28" stroke="#fff" strokeWidth="1.8" />
-                                    <circle cx="38" cy="38" r="11" fill="#b81e34" stroke="#fff" strokeWidth="1.5" />
-                                    <polyline points="32,38 36.5,42 45,33" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">Audit Logs</span>
-                            <span className="cl-nsub">All Events</span>
-                        </div>
-
-                        {/* MCP / AI Tools */}
-                        <div className="cl-node cl-d5">
-                            <div className="cl-nicon">
-                                <svg width="44" height="44" viewBox="0 0 54 54">
-                                    <rect width="54" height="54" rx="8" fill="#01A88D" />
-                                    <rect x="9" y="10" width="36" height="9" rx="2.5" fill="#fff" opacity=".9" />
-                                    <rect x="9" y="22" width="36" height="9" rx="2.5" fill="#fff" opacity=".72" />
-                                    <rect x="9" y="34" width="36" height="9" rx="2.5" fill="#fff" opacity=".52" />
-                                    <circle cx="38" cy="14.5" r="2.5" fill="#01A88D" />
-                                    <circle cx="38" cy="26.5" r="2.5" fill="#01A88D" />
-                                    <circle cx="38" cy="38.5" r="2.5" fill="#01A88D" />
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">MCP Servers<br />+ AI Tools</span>
-                            <span className="cl-nsub">LLM · Compute</span>
-                        </div>
-                    </div>
+                {/* Center Hub */}
+                <div className="cla-center-hub">
+                    <span className="cla-hub-icon">⟳</span>
+                    <span className="cla-hub-title">Control<br />Loop</span>
+                    <span className="cla-hub-sub">Autonomous</span>
                 </div>
 
-                {/* ═══ MIDDLE BRIDGE ═══ */}
-                <div className="cl-bridge">
-                    {/* TOP: AuthZ Config → IGAI */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginTop: '14px' }}>
-                        <span className="cl-bridge-label" style={{ color: '#ff6a00' }}>AuthZ Config</span>
-                        <svg style={{ width: '100%', height: '14px', overflow: 'visible' }} viewBox="0 0 100 14" preserveAspectRatio="none">
-                            <defs><marker id="clbm1" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#ff6a00" /></marker></defs>
-                            <rect x="0" y="2" width="100" height="10" rx="5" fill="rgba(255,106,0,.1)" stroke="rgba(255,106,0,.4)" strokeWidth="1" />
-                            <line x1="4" y1="7" x2="92" y2="7" stroke="#ff6a00" strokeWidth="2" strokeDasharray="7 4" markerEnd="url(#clbm1)">
-                                <animate attributeName="stroke-dashoffset" from="22" to="0" dur="1.3s" repeatCount="indefinite" />
-                            </line>
-                        </svg>
-                    </div>
-
-                    {/* MIDDLE: Loop badge + return arrow */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '8px 0' }}>
-                        <div className="cl-loop-badge">⟳ Control Loop</div>
-                        <svg width="100" height="14" viewBox="0 0 100 14" preserveAspectRatio="none">
-                            <defs><marker id="clbm3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#fbbf24" /></marker></defs>
-                            <rect x="0" y="2" width="100" height="10" rx="5" fill="rgba(251,191,36,.12)" stroke="rgba(251,191,36,.5)" strokeWidth="1.2" />
-                            <line x1="96" y1="7" x2="8" y2="7" stroke="#fbbf24" strokeWidth="2.2" strokeDasharray="7 4" markerEnd="url(#clbm3)">
-                                <animate attributeName="stroke-dashoffset" from="0" to="22" dur="1.1s" repeatCount="indefinite" />
-                            </line>
-                        </svg>
-                        <span className="cl-return-label">↩ Permission Fix</span>
-                    </div>
-
-                    {/* BOTTOM: Audit Events → IGAI */}
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginBottom: '14px' }}>
-                        <svg style={{ width: '100%', height: '14px', overflow: 'visible' }} viewBox="0 0 100 14" preserveAspectRatio="none">
-                            <defs><marker id="clbm2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#e7157b" /></marker></defs>
-                            <rect x="0" y="2" width="100" height="10" rx="5" fill="rgba(231,21,123,.1)" stroke="rgba(231,21,123,.4)" strokeWidth="1" />
-                            <line x1="4" y1="7" x2="92" y2="7" stroke="#e7157b" strokeWidth="2" strokeDasharray="7 4" markerEnd="url(#clbm2)">
-                                <animate attributeName="stroke-dashoffset" from="22" to="0" dur="1.5s" repeatCount="indefinite" />
-                            </line>
-                        </svg>
-                        <span className="cl-bridge-label" style={{ color: '#e7157b' }}>Audit Events</span>
-                    </div>
-                </div>
-
-                {/* ═══ RIGHT — IGAI ZONE ═══ */}
-                <div className="cl-zone cl-zone-ig">
-                    <div className="cl-zone-label">◈ Identity Governance (IGAI)</div>
-
-                    {/* ROW 1: Identity Governance Svc → Graph DB */}
-                    <div className="cl-ig-row">
-                        <div className="cl-node cl-d6">
-                            <div className="cl-nicon">
-                                <svg width="48" height="48" viewBox="0 0 60 60">
-                                    <rect width="60" height="60" rx="8" fill="#8C4FFF" />
-                                    <circle cx="30" cy="22" r="12" fill="none" stroke="#fff" strokeWidth="2" opacity=".85" />
-                                    <path d="M22,22 L26,26 L38,18" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    <line x1="14" y1="38" x2="46" y2="38" stroke="#fff" strokeWidth="1.8" opacity=".7" />
-                                    <line x1="18" y1="43" x2="42" y2="43" stroke="#fff" strokeWidth="1.8" opacity=".5" />
-                                    <line x1="22" y1="48" x2="38" y2="48" stroke="#fff" strokeWidth="1.8" opacity=".35" />
-                                </svg>
+                {/* Nodes */}
+                {nodeData.map((node, idx) => {
+                    const pos = getPos(node.angle)
+                    const nodeWidth = 80
+                    const nodeHeight = 85
+                    return (
+                        <div
+                            key={node.id}
+                            className={`cla-node cla-d${idx}`}
+                            style={{
+                                left: `${pos.x - nodeWidth / 2}px`,
+                                top: `${pos.y - nodeHeight / 2}px`,
+                                width: `${nodeWidth}px`,
+                            }}
+                        >
+                            <div className="cla-nicon">
+                                {renderIcon(node)}
                             </div>
-                            <span className="cl-nlabel">Identity<br />Governance Svc</span>
-                            <span className="cl-nsub">Ingest · Analyse</span>
+                            <span className="cla-nlabel">
+                                {node.label}{node.label2 && <><br />{node.label2}</>}
+                            </span>
+                            {node.sub && <span className="cla-nsub">{node.sub}</span>}
                         </div>
-
-                        <div className="cl-iarrow">
-                            <svg viewBox="0 0 50 18" preserveAspectRatio="none">
-                                <defs><marker id="clig1" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#7c6bff" /></marker></defs>
-                                <rect x="0" y="5" width="50" height="8" rx="4" fill="rgba(124,107,255,.12)" stroke="rgba(124,107,255,.3)" strokeWidth="1" />
-                                <line x1="3" y1="9" x2="43" y2="9" stroke="#7c6bff" strokeWidth="1.8" strokeDasharray="5 3" markerEnd="url(#clig1)">
-                                    <animate attributeName="stroke-dashoffset" from="16" to="0" dur="1.2s" repeatCount="indefinite" />
-                                </line>
-                            </svg>
-                        </div>
-
-                        {/* Graph Database */}
-                        <div className="cl-node cl-d7">
-                            <div className="cl-nicon">
-                                <svg width="46" height="46" viewBox="0 0 58 58">
-                                    <circle cx="29" cy="29" r="27" fill="#1e1e2e" stroke="rgba(124,107,255,.5)" strokeWidth="1.8" />
-                                    <circle cx="29" cy="14" r="5" fill="#7c6bff" opacity=".9" />
-                                    <circle cx="14" cy="38" r="5" fill="#7c6bff" opacity=".75" />
-                                    <circle cx="44" cy="38" r="5" fill="#7c6bff" opacity=".75" />
-                                    <circle cx="29" cy="29" r="4" fill="#38bdf8" opacity=".9" />
-                                    <line x1="29" y1="19" x2="29" y2="25" stroke="#fff" strokeWidth="1.5" opacity=".5" />
-                                    <line x1="25" y1="31" x2="17" y2="35" stroke="#fff" strokeWidth="1.5" opacity=".5" />
-                                    <line x1="33" y1="31" x2="41" y2="35" stroke="#fff" strokeWidth="1.5" opacity=".5" />
-                                    <line x1="19" y1="37" x2="25" y2="30" stroke="#fff" strokeWidth="1" opacity=".3" />
-                                    <line x1="39" y1="37" x2="33" y2="30" stroke="#fff" strokeWidth="1" opacity=".3" />
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">Graph<br />Database</span>
-                            <span className="cl-nsub">Knowledge Graph</span>
-                        </div>
-                    </div>
-
-                    {/* ↓ arrow */}
-                    <div className="cl-vsep" style={{ paddingLeft: '60%' }}>
-                        <svg width="14" height="18">
-                            <line x1="7" y1="0" x2="7" y2="12" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4 3">
-                                <animate attributeName="stroke-dashoffset" from="14" to="0" dur="1s" repeatCount="indefinite" />
-                            </line>
-                            <polygon points="0,12 7,18 14,12" fill="#38bdf8" />
-                        </svg>
-                    </div>
-
-                    {/* ROW 2: GraphRAG + LLM → Query Engine */}
-                    <div className="cl-ig-row">
-                        <div className="cl-node cl-d8">
-                            <div className="cl-nicon">
-                                <svg width="48" height="46" viewBox="0 0 60 58">
-                                    <rect width="60" height="58" rx="8" fill="#1a1040" />
-                                    <rect x="0" y="0" width="60" height="58" rx="8" fill="none" stroke="rgba(56,189,248,.35)" strokeWidth="1.5" />
-                                    <ellipse cx="30" cy="26" rx="16" ry="14" fill="none" stroke="#38bdf8" strokeWidth="1.8" opacity=".8" />
-                                    <circle cx="22" cy="22" r="3" fill="#38bdf8" opacity=".9" />
-                                    <circle cx="38" cy="22" r="3" fill="#38bdf8" opacity=".9" />
-                                    <circle cx="22" cy="34" r="3" fill="#38bdf8" opacity=".9" />
-                                    <circle cx="38" cy="34" r="3" fill="#38bdf8" opacity=".9" />
-                                    <circle cx="30" cy="26" r="4" fill="#fff" opacity=".95" />
-                                    <line x1="22" y1="22" x2="30" y2="26" stroke="#38bdf8" strokeWidth="1.2" opacity=".6" />
-                                    <line x1="38" y1="22" x2="30" y2="26" stroke="#38bdf8" strokeWidth="1.2" opacity=".6" />
-                                    <line x1="22" y1="34" x2="30" y2="26" stroke="#38bdf8" strokeWidth="1.2" opacity=".6" />
-                                    <line x1="38" y1="34" x2="30" y2="26" stroke="#38bdf8" strokeWidth="1.2" opacity=".6" />
-                                    <text x="30" y="50" textAnchor="middle" fill="#38bdf8" fontSize="8" fontFamily="monospace" opacity=".8">llama / GPT</text>
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">GraphRAG<br />+ LLM</span>
-                            <span className="cl-nsub">AI Reasoning</span>
-                        </div>
-
-                        <div className="cl-iarrow">
-                            <svg viewBox="0 0 50 18" preserveAspectRatio="none">
-                                <defs><marker id="clig2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,7 2.5,0 5" fill="#38bdf8" /></marker></defs>
-                                <rect x="0" y="5" width="50" height="8" rx="4" fill="rgba(56,189,248,.1)" stroke="rgba(56,189,248,.3)" strokeWidth="1" />
-                                <line x1="3" y1="9" x2="43" y2="9" stroke="#38bdf8" strokeWidth="1.8" strokeDasharray="5 3" markerEnd="url(#clig2)">
-                                    <animate attributeName="stroke-dashoffset" from="16" to="0" dur="1.1s" repeatCount="indefinite" />
-                                </line>
-                            </svg>
-                        </div>
-
-                        {/* Query Engine */}
-                        <div className="cl-node cl-d9">
-                            <div className="cl-nicon">
-                                <svg width="48" height="48" viewBox="0 0 60 60">
-                                    <rect width="60" height="60" rx="8" fill="#8C4FFF" />
-                                    <circle cx="26" cy="26" r="13" fill="none" stroke="#fff" strokeWidth="2.5" opacity=".9" />
-                                    <line x1="36" y1="36" x2="46" y2="46" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                                    <line x1="20" y1="22" x2="32" y2="22" stroke="#fff" strokeWidth="1.8" opacity=".8" />
-                                    <line x1="20" y1="27" x2="32" y2="27" stroke="#fff" strokeWidth="1.8" opacity=".6" />
-                                    <line x1="20" y1="32" x2="27" y2="32" stroke="#fff" strokeWidth="1.8" opacity=".4" />
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">Query Engine</span>
-                            <span className="cl-nsub">Resolve · Report</span>
-                        </div>
-                    </div>
-
-                    {/* ↓ arrow */}
-                    <div className="cl-vsep" style={{ paddingLeft: '60%' }}>
-                        <svg width="14" height="18">
-                            <line x1="7" y1="0" x2="7" y2="12" stroke="#22c55e" strokeWidth="2" strokeDasharray="4 3">
-                                <animate attributeName="stroke-dashoffset" from="14" to="0" dur="1s" repeatCount="indefinite" />
-                            </line>
-                            <polygon points="0,12 7,18 14,12" fill="#22c55e" />
-                        </svg>
-                    </div>
-
-                    {/* ROW 3: Permissions Report + Fix Permissions */}
-                    <div className="cl-ig-bottom-row">
-                        <div className="cl-node cl-d10 cl-report-glow">
-                            <div className="cl-nicon">
-                                <svg width="44" height="44" viewBox="0 0 56 56">
-                                    <rect width="56" height="56" rx="10" fill="#052e16" stroke="rgba(34,197,94,.5)" strokeWidth="1.8" />
-                                    <rect x="9" y="10" width="38" height="6" rx="2" fill="#22c55e" opacity=".8" />
-                                    <rect x="9" y="20" width="30" height="4" rx="2" fill="#22c55e" opacity=".55" />
-                                    <rect x="9" y="28" width="34" height="4" rx="2" fill="#22c55e" opacity=".45" />
-                                    <rect x="9" y="36" width="22" height="4" rx="2" fill="#22c55e" opacity=".35" />
-                                    <circle cx="42" cy="42" r="10" fill="#16a34a" stroke="#fff" strokeWidth="1.5" />
-                                    <polyline points="36.5,42 40.5,46 47.5,37" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">Permissions<br />Report</span>
-                            <span className="cl-nsub">Risk · Violations</span>
-                        </div>
-
-                        <div className="cl-node cl-d10">
-                            <div className="cl-nicon">
-                                <svg width="44" height="44" viewBox="0 0 56 56">
-                                    <rect width="56" height="56" rx="10" fill="#1c0d00" stroke="rgba(245,158,11,.45)" strokeWidth="1.8" />
-                                    <path d="M28,10 L28,34 M20,18 L36,18 M20,26 L36,26" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
-                                    <path d="M28,8 L22,14 L22,22 L28,28 L34,22 L34,14 Z" fill="rgba(245,158,11,.2)" stroke="#f59e0b" strokeWidth="1.8" />
-                                    <g className="cl-gear-spin">
-                                        <circle cx="28" cy="44" r="7" fill="none" stroke="#f59e0b" strokeWidth="2" opacity=".8" />
-                                        <circle cx="28" cy="44" r="2.5" fill="#f59e0b" opacity=".8" />
-                                        <path d="M28,36 v2 M28,50 v2 M20,44 h2 M34,44 h2" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" opacity=".8" />
-                                    </g>
-                                </svg>
-                            </div>
-                            <span className="cl-nlabel">Fix<br />Permissions</span>
-                            <span className="cl-nsub" style={{ color: '#fbbf24' }}>→ AuthZ Update</span>
-                        </div>
-                    </div>
-                </div>
+                    )
+                })}
             </div>
 
             {/* Legend */}
             <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '16px' }}>
-                {[
-                    { color: '#00d4b4', label: 'Gateway Flow' },
-                    { color: '#ff6a00', label: 'AuthZ Config' },
-                    { color: '#e7157b', label: 'Audit Events' },
-                    { color: '#7c6bff', label: 'IGAI Analysis' },
-                    { color: '#fbbf24', label: 'Permission Fix' },
-                ].map(item => (
+                {legend.map(item => (
                     <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '.55rem', fontFamily: "'DM Mono',monospace", color: '#8892aa' }}>
                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }}></div>
                         {item.label}

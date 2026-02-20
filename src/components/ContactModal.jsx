@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send, User, Mail, Building, MessageSquare, AlertCircle } from 'lucide-react'
+import { X, Send, User, Mail, MessageSquare, AlertCircle, HelpCircle } from 'lucide-react'
 
-export default function DemoModal({ isOpen, onClose }) {
+const contactReasons = [
+    'General Inquiry',
+    'Partnership Opportunity',
+    'Technical Support',
+    'Feedback',
+    'Other',
+]
+
+export default function ContactModal({ isOpen, onClose }) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        company: '',
+        reason: '',
         message: ''
     })
     const [isSubmitted, setIsSubmitted] = useState(false)
@@ -20,7 +28,7 @@ export default function DemoModal({ isOpen, onClose }) {
 
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-            const response = await fetch(`${API_URL}/api/demo-request`, {
+            const response = await fetch(`${API_URL}/api/contact`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -29,15 +37,14 @@ export default function DemoModal({ isOpen, onClose }) {
             const data = await response.json()
 
             if (!response.ok || !data.success) {
-                throw new Error(data.error || 'Failed to submit request')
+                throw new Error(data.error || 'Failed to submit message')
             }
 
             setIsSubmitted(true)
 
-            // Reset after 3 seconds
             setTimeout(() => {
                 setIsSubmitted(false)
-                setFormData({ name: '', email: '', company: '', message: '' })
+                setFormData({ name: '', email: '', reason: '', message: '' })
                 onClose()
             }, 3000)
         } catch (err) {
@@ -96,10 +103,10 @@ export default function DemoModal({ isOpen, onClose }) {
                                     {!isSubmitted ? (
                                         <>
                                             <h3 className="text-2xl font-bold text-white mb-2">
-                                                Request a Demo
+                                                Contact Us
                                             </h3>
                                             <p className="text-slate-400 mb-6">
-                                                Get a personalized walkthrough of Kaappu's identity governance platform.
+                                                Tell us how we can help. Our team will get back to you shortly.
                                             </p>
 
                                             <form onSubmit={handleSubmit} className="space-y-4">
@@ -128,7 +135,7 @@ export default function DemoModal({ isOpen, onClose }) {
                                                         name="email"
                                                         value={formData.email}
                                                         onChange={handleChange}
-                                                        placeholder="Work Email"
+                                                        placeholder="Your Email"
                                                         required
                                                         className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 
                                    rounded-xl text-white placeholder-slate-500 focus:outline-none 
@@ -137,21 +144,25 @@ export default function DemoModal({ isOpen, onClose }) {
                                                     />
                                                 </div>
 
-                                                {/* Company */}
+                                                {/* Reason */}
                                                 <div className="relative">
-                                                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                                                    <input
-                                                        type="text"
-                                                        name="company"
-                                                        value={formData.company}
+                                                    <HelpCircle className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                                                    <select
+                                                        name="reason"
+                                                        value={formData.reason}
                                                         onChange={handleChange}
-                                                        placeholder="Company Name"
                                                         required
                                                         className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 
-                                   rounded-xl text-white placeholder-slate-500 focus:outline-none 
+                                   rounded-xl text-white focus:outline-none 
                                    focus:border-kaappu-500/50 focus:ring-1 focus:ring-kaappu-500/50 
-                                   transition-all"
-                                                    />
+                                   transition-all appearance-none cursor-pointer"
+                                                        style={{ colorScheme: 'dark' }}
+                                                    >
+                                                        <option value="" disabled className="bg-slate-800 text-slate-500">Reason for contacting</option>
+                                                        {contactReasons.map(r => (
+                                                            <option key={r} value={r} className="bg-slate-800 text-white">{r}</option>
+                                                        ))}
+                                                    </select>
                                                 </div>
 
                                                 {/* Message */}
@@ -161,8 +172,9 @@ export default function DemoModal({ isOpen, onClose }) {
                                                         name="message"
                                                         value={formData.message}
                                                         onChange={handleChange}
-                                                        placeholder="Tell us about your identity security needs..."
+                                                        placeholder="Your message..."
                                                         rows={3}
+                                                        required
                                                         className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 
                                    rounded-xl text-white placeholder-slate-500 focus:outline-none 
                                    focus:border-kaappu-500/50 focus:ring-1 focus:ring-kaappu-500/50 
@@ -192,7 +204,7 @@ export default function DemoModal({ isOpen, onClose }) {
                                                     ) : (
                                                         <>
                                                             <Send className="w-4 h-4" />
-                                                            Submit Request
+                                                            Send Message
                                                         </>
                                                     )}
                                                 </button>
@@ -220,10 +232,10 @@ export default function DemoModal({ isOpen, onClose }) {
                                                 </motion.div>
                                             </div>
                                             <h3 className="text-xl font-semibold text-white mb-2">
-                                                Request Submitted!
+                                                Message Sent!
                                             </h3>
                                             <p className="text-slate-400">
-                                                Our team will contact you shortly to schedule your demo.
+                                                Thank you for reaching out. Our team will get back to you shortly.
                                             </p>
                                         </motion.div>
                                     )}
