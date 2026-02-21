@@ -5,7 +5,7 @@ import { Shield, Menu, X, ChevronDown } from 'lucide-react'
 
 const navLinks = [
     {
-        name: 'Solutions',
+        name: 'Intelligent Governance AI',
         path: '/solutions',
         dropdown: [
             { name: 'IGAI Solution', path: '/solutions#igai' },

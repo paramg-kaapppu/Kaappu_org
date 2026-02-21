@@ -59,7 +59,7 @@ export default function Footer() {
 
                     {/* Solutions Links */}
                     <div>
-                        <h4 className="font-semibold text-white mb-4">Solutions</h4>
+                        <h4 className="font-semibold text-white mb-4">Intelligent Governance AI</h4>
                         <ul className="space-y-3">
                             {footerLinks.solutions.map((link) => (
                                 <li key={link.name}>

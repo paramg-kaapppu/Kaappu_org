@@ -549,7 +549,7 @@ function ReadMoreModal({ solution, isOpen, onClose }) {
                                     className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg"
                                 >
                                     <ArrowRight className="w-5 h-5 rotate-180" />
-                                    Back to Solutions
+                                    Back to IGAI Solution
                                 </button>
                             </motion.div>
                         </div>
@@ -618,7 +618,7 @@ export default function Solutions() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center max-w-3xl mx-auto"
                     >
-                        <span className="text-kaappu-400 font-medium mb-4 block">Our Solutions</span>
+                        <span className="text-kaappu-400 font-medium mb-4 block">Intelligent Governance AI Solution</span>
                         <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
                             Comprehensive <span className="gradient-text">Identity Security</span> Suite
                         </h1>

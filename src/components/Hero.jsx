@@ -39,19 +39,21 @@ export default function Hero() {
 
                         {/* Main Heading */}
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                            <span className="text-white">Secure the Intersection of </span>
-                            <span className="gradient-text-cyber">Identity</span>
-                            <span className="text-white"> and </span>
-                            <span className="gradient-text">AI</span>
+                            <span className="text-white">Secure, Governed </span>
+                            <span className="gradient-text-cyber">AI Access</span>
+                            <span className="text-white"> with </span>
+                            <span className="gradient-text">Real-Time Protection</span>
                         </h1>
 
                         {/* Description */}
-                        <p className="text-lg text-slate-400 mb-8 max-w-xl leading-relaxed">
-                            Kaappu combines AI Gateway, Identity Governance, and Threat Detection
-                            into a unified platform. Secure AI agent access with policy-driven gateways,
-                            gain full visibility into users, roles, and permissions across your identity
-                            infrastructure, and detect threats in real-time with intelligent, automated response.
-                        </p>
+                        <div className="space-y-4 mb-8">
+                            <p className="text-lg text-slate-400 max-w-xl leading-relaxed">
+                                Kaappu secures AI access and data with policy-driven AI gateways, backed by identity governance and real-time threat detection. Control who, what, and how AI agents interact with your systems — with automated mitigation and continuous risk enforcement.
+                            </p>
+                            <p className="text-lg text-slate-400 max-w-xl leading-relaxed">
+                                Establish a continuous security control loop that prevents data leakage, enforces least privilege, and adapts dynamically to evolving AI and identity risks.
+                            </p>
+                        </div>
 
                         {/* CTA Buttons */}
                         <div className="flex flex-wrap gap-4 mb-12">

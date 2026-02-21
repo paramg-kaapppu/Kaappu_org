@@ -290,13 +290,14 @@ export default function ControlLoopAnimation() {
                 /* Responsive scaling */
                 @media (max-width: 600px) {
                     .cla-container {
-                        transform: scale(0.65);
-                        transform-origin: top center;
+                        transform: scale(0.6);
+                        transform-origin: center center;
+                        margin: -60px 0;
                     }
                 }
                 @media (min-width: 601px) and (max-width: 900px) {
                     .cla-container {
-                        transform: scale(0.85);
+                        transform: scale(0.8);
                         transform-origin: top center;
                     }
                 }
