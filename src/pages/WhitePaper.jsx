@@ -193,7 +193,11 @@ export default function WhitePaper() {
                 </div>
             </section>
 
-            <DemoModal isOpen={isDemoOpen} onClose={() => setIsDemoOpen(false)} />
+            <DemoModal
+                isOpen={isDemoOpen}
+                onClose={() => setIsDemoOpen(false)}
+                purpose="white-paper"
+            />
         </>
     )
 }

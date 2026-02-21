@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import DemoModal from '../components/DemoModal'
 import KGFArchitectureFlow from '../components/KGFArchitectureFlow'
+import IGAIArchitectureFlow from '../components/IGAIArchitectureFlow'
 
 const solutions = [
     {
@@ -16,6 +17,7 @@ const solutions = [
         icon: Shield,
         title: 'IGAI Solution',
         subtitle: 'Intelligent Governance AI',
+        architectureComponent: 'igai',
         description: 'Harness the power of artificial intelligence to transform how you govern and protect identities. IGAI provides intelligent insights, automated threat detection, and predictive risk analysis across your entire identity infrastructure.',
         mainScreenshot: '/screenshots/igai-landing.png',
         features: [
@@ -366,15 +368,15 @@ function ReadMoreModal({ solution, isOpen, onClose }) {
                         <div className="max-w-6xl mx-auto">
 
                             {/* Main Content Area */}
-                            <div className={solution.architectureComponent === 'kgf' ? "grid lg:grid-cols-2 gap-12 items-start mb-12" : "mb-12"}>
-                                {/* Left Side: Header & Overview */}
+                            <div className="mb-12">
+                                {/* Overview Section */}
                                 <motion.div
-                                    initial={{ opacity: 0, x: solution.architectureComponent === 'kgf' ? -20 : 0, y: solution.architectureComponent === 'kgf' ? 0 : 20 }}
-                                    animate={{ opacity: 1, x: 0, y: 0 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
                                 >
-                                    <div className={`${solution.architectureComponent === 'kgf' ? 'text-left' : 'text-center'} mb-10`}>
-                                        <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl 
-                                                        bg-gradient-to-br from-kaappu-500/20 to-cyber-purple/20 mb-6`}>
+                                    <div className="text-center mb-10">
+                                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl 
+                                                        bg-gradient-to-br from-kaappu-500/20 to-cyber-purple/20 mb-6 mx-auto">
                                             <solution.icon className="w-10 h-10 text-kaappu-400" />
                                         </div>
                                         <span className="text-kaappu-400 text-sm font-medium block mb-2">
@@ -384,7 +386,7 @@ function ReadMoreModal({ solution, isOpen, onClose }) {
                                             {solution.title}
                                         </h1>
                                     </div>
-                                    <div className="space-y-6">
+                                    <div className="space-y-6 max-w-4xl mx-auto">
                                         {solution.detailedContent.overview.map((paragraph, pIdx) => (
                                             <p key={pIdx} className="text-slate-400 text-lg leading-relaxed text-left">
                                                 {paragraph}
@@ -393,23 +395,24 @@ function ReadMoreModal({ solution, isOpen, onClose }) {
                                     </div>
                                 </motion.div>
 
-                                {/* Right Side: Architecture Animation (KGF only) */}
-                                {solution.architectureComponent === 'kgf' && (
+                                {/* Architecture Animation (KGF & IGAI) - Below Info */}
+                                {(solution.architectureComponent === 'kgf' || solution.architectureComponent === 'igai') && (
                                     <motion.div
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.1 }}
-                                        className="sticky top-20"
+                                        initial={{ opacity: 0, y: 30 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="mt-16"
                                     >
                                         <div className="mb-8">
-                                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                                            <h2 className="text-2xl font-bold text-white mb-6 flex items-center justify-center gap-3">
                                                 <div className="w-10 h-10 rounded-lg bg-kaappu-500/10 flex items-center justify-center">
                                                     <Layers className="w-5 h-5 text-kaappu-400" />
                                                 </div>
                                                 Architecture Overview
                                             </h2>
-                                            <div className="glass-card rounded-2xl p-4 border border-white/5 bg-white/[0.01]">
-                                                <KGFArchitectureFlow />
+                                            <div className="glass-card rounded-2xl p-6 border border-white/5 bg-white/[0.01] max-w-5xl mx-auto overflow-visible">
+                                                {solution.architectureComponent === 'kgf' && <KGFArchitectureFlow />}
+                                                {solution.architectureComponent === 'igai' && <IGAIArchitectureFlow />}
                                             </div>
                                         </div>
                                     </motion.div>
@@ -549,7 +552,7 @@ function ReadMoreModal({ solution, isOpen, onClose }) {
                                     className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-lg"
                                 >
                                     <ArrowRight className="w-5 h-5 rotate-180" />
-                                    Back to IGAI Solution
+                                    Back to Solutions
                                 </button>
                             </motion.div>
                         </div>

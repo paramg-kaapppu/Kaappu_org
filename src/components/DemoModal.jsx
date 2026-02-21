@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Send, User, Mail, Building, MessageSquare, AlertCircle } from 'lucide-react'
 
-export default function DemoModal({ isOpen, onClose }) {
+export default function DemoModal({ isOpen, onClose, purpose = 'demo' }) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -20,7 +20,8 @@ export default function DemoModal({ isOpen, onClose }) {
 
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-            const response = await fetch(`${API_URL}/api/demo-request`, {
+            const endpoint = purpose === 'white-paper' ? '/api/white-paper-request' : '/api/demo-request';
+            const response = await fetch(`${API_URL}${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -96,10 +97,12 @@ export default function DemoModal({ isOpen, onClose }) {
                                     {!isSubmitted ? (
                                         <>
                                             <h3 className="text-2xl font-bold text-white mb-2">
-                                                Request a Demo
+                                                {purpose === 'white-paper' ? 'Download White Paper' : 'Request a Demo'}
                                             </h3>
                                             <p className="text-slate-400 mb-6">
-                                                Get a personalized walkthrough of Kaappu's identity governance platform.
+                                                {purpose === 'white-paper'
+                                                    ? 'Enter your details to receive the full white paper on Data Protection and AI Governance.'
+                                                    : "Get a personalized walkthrough of Kaappu's identity governance platform."}
                                             </p>
 
                                             <form onSubmit={handleSubmit} className="space-y-4">
@@ -220,10 +223,12 @@ export default function DemoModal({ isOpen, onClose }) {
                                                 </motion.div>
                                             </div>
                                             <h3 className="text-xl font-semibold text-white mb-2">
-                                                Request Submitted!
+                                                {purpose === 'white-paper' ? 'White Paper Sent!' : 'Request Submitted!'}
                                             </h3>
                                             <p className="text-slate-400">
-                                                Our team will contact you shortly to schedule your demo.
+                                                {purpose === 'white-paper'
+                                                    ? 'Please check your email. We\'ve sent the PDF to you.'
+                                                    : 'Our team will contact you shortly to schedule your demo.'}
                                             </p>
                                         </motion.div>
                                     )}

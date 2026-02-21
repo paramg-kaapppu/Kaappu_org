@@ -80,6 +80,87 @@ const logoAttachment = {
     cid: 'kaappulogo'
 };
 
+// White Paper request endpoint
+app.post('/api/white-paper-request', async (req, res) => {
+    const { name, email, company } = req.body;
+
+    if (!name || !email) {
+        return res.status(400).json({
+            success: false,
+            error: 'Name and email are required'
+        });
+    }
+
+    const adminEmail = process.env.ADMIN_EMAIL || 'paramg@kaappu.org';
+    const whitePaperPath = join(__dirname, 'assets', 'White_Paper_data_protection (1).pdf');
+
+    try {
+        // 1. Send admin notification
+        const adminMailOptions = {
+            from: `"Kaappu White Paper Request" <${process.env.EMAIL_USER}>`,
+            to: adminEmail,
+            subject: `White Paper Request: ${name} from ${company || 'N/A'}`,
+            attachments: [logoAttachment],
+            html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; padding: 32px; border-radius: 16px;">
+                    <h2 style="color: #f8fafc;">New White Paper Request</h2>
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Company:</strong> ${company || 'N/A'}</p>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(adminMailOptions);
+
+        // 2. Send user the white paper
+        const userMailOptions = {
+            from: `"Kaappu" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: `Kaappu White Paper: Data Protection and AI Governance`,
+            attachments: [
+                logoAttachment,
+                {
+                    filename: 'Kaappu_White_Paper.pdf',
+                    path: whitePaperPath
+                }
+            ],
+            html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; padding: 32px; border-radius: 16px;">
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <img src="cid:kaappulogo" alt="Kaappu" style="width: 200px; height: auto;" />
+                    </div>
+                    <h2 style="color: #f8fafc; text-align: center;">Thank you for your interest!</h2>
+                    <p style="color: #cbd5e1; line-height: 1.7;">
+                        Hi ${name},<br/><br/>
+                        As requested, we've attached our latest white paper on <strong>Data Protection and AI Governance</strong>.
+                        We hope you find it insightful.
+                    </p>
+                    <div style="background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 12px; padding: 20px; margin: 24px 0;">
+                        <p style="margin: 0; color: #60a5fa; font-weight: 600;">In this white paper, you'll find:</p>
+                        <ul style="color: #cbd5e1; margin-top: 10px;">
+                            <li>Architectural overview of KGF</li>
+                            <li>Identity-aware AI security patterns</li>
+                            <li>Real-world use cases for enterprise AI</li>
+                        </ul>
+                    </div>
+                    <p style="color: #cbd5e1;">If you have any questions or would like to discuss how Kaappu can help your organization, feel free to reply to this email.</p>
+                    <div style="text-align: center; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <p style="color: #94a3b8; font-size: 14px; margin: 0;">Kaappu &middot; AI-Powered Identity Governance & Protection</p>
+                    </div>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(userMailOptions);
+        res.json({ success: true, message: 'White paper sent! Please check your email.' });
+
+    } catch (error) {
+        console.error('\u274C Error sending white paper:', error);
+        res.status(500).json({ success: false, error: 'Failed to send white paper. Please try again later.' });
+    }
+});
+
 // Demo request endpoint
 app.post('/api/demo-request', async (req, res) => {
     const { name, email, company, role, message } = req.body;
