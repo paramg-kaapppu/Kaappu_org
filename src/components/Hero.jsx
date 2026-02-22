@@ -43,19 +43,19 @@ export default function Hero() {
                         </motion.div>
 
                         {/* Main Heading */}
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-white overflow-visible">
-                            <span className="block sm:inline">Secure, Governed </span>
+                        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-white overflow-visible">
+                            <span className="inline">Secure, Governed </span>
                             <span className="gradient-text-cyber">AI Access</span>
-                            <span className="block sm:inline"> with </span>
+                            <span className="inline"> with </span>
                             <span className="gradient-text">Real-Time Protection</span>
                         </h1>
 
                         {/* Description */}
-                        <div className="space-y-4 mb-8">
-                            <p className="text-base sm:text-lg text-slate-400 max-w-xl leading-relaxed mx-auto lg:mx-0">
+                        <div className="space-y-4 mb-8 px-2 sm:px-0">
+                            <p className="text-sm sm:text-lg text-slate-400 max-w-xl leading-relaxed mx-auto lg:mx-0">
                                 Kaappu secures AI access and data with policy-driven AI gateways, backed by identity governance and real-time threat detection. Control who, what, and how AI agents interact with your systems — with automated mitigation and continuous risk enforcement.
                             </p>
-                            <p className="text-base sm:text-lg text-slate-400 max-w-xl leading-relaxed mx-auto lg:mx-0">
+                            <p className="text-sm sm:text-lg text-slate-400 max-w-xl leading-relaxed mx-auto lg:mx-0">
                                 Establish a continuous security control loop that prevents data leakage, enforces least privilege, and adapts dynamically to evolving AI and identity risks.
                             </p>
                         </div>
